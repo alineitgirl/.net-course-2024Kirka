@@ -11,11 +11,8 @@ namespace BankSystem.Domain.Models
         public string Contract { get; set; }= "Контракт сотрудника по умолчанию";
         private string Skills { get; set; } = String.Empty;
 
-        public Employee()
-        {
-        }
-
-        public Employee (string firstName, string lastName, DateTime dateOfBirth, string address, string passport, int phoneNumber,
+       
+        public Employee (string firstName, string lastName, DateTime dateOfBirth, string address, string passport,string phoneNumber,
             string position, string department, double salary, string skills): base(firstName, lastName, dateOfBirth,
             address, passport, phoneNumber) {
             this.Id = new Guid();
@@ -25,13 +22,13 @@ namespace BankSystem.Domain.Models
             this.Skills = skills;
         }
         
-        public override void Print()
+        public override string ToString()
         {
-            base.Print();
-            Console.WriteLine($"Должность: {Position}\n" +
-                              $"Отдел: {Department}\n" +
-                              $"Контракт: {Contract}\n" +
-                              $"Навыки: {Skills}\n\n\n");
+            base.ToString();
+            return $"Должность: {Position}\n" +
+                   $"Отдел: {Department}\n" +
+                   $"Контракт: {Contract}\n" +
+                   $"Навыки: {Skills}\n\n\n";
         }
     }
 }

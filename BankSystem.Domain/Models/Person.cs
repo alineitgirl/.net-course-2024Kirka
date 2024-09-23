@@ -9,15 +9,10 @@ namespace BankSystem.Domain.Models
         private DateTime DateOfBirth { get; set; } = DateTime.Now;
         private string Adress { get; set; } = String.Empty;
         private string Passport { get; set; } = String.Empty;
-        private int PhoneNumber { get; set; } = 0;
-
-        public Person()
-        {
-            
-        }
+        private string PhoneNumber { get; set; } = string.Empty;
 
         public Person(string firstName, string lastName, DateTime dateOfBirth, string adress, string passport,
-            int phoneNumber)
+            string phoneNumber)
         {
             this.FirstName = firstName;
             this.LastName = lastName;
@@ -27,10 +22,10 @@ namespace BankSystem.Domain.Models
             this.PhoneNumber = phoneNumber;
         }
         
-        public virtual void Print() => Console.WriteLine($"Имя: {FirstName}\n" +
-                                                 $"Фамилия: {LastName}\n" +
-                                                 $"Дата рождения: {DateOfBirth}\n" +
-                                                 $"Номер телефона: {PhoneNumber}\n" +
-                                                 $"Адрес проживания: {Adress}\n");
+        public override string ToString() =>  $"Имя: {FirstName}\n" +
+                                            $"Фамилия: {LastName}\n" +
+                                            $"Дата рождения: {DateOfBirth}\n" +
+                                            $"Номер телефона: {PhoneNumber}\n" +
+                                            $"Адрес проживания: {Adress}\n";
     }
 }
