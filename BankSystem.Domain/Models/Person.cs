@@ -9,7 +9,7 @@ namespace BankSystem.Domain.Models
         private DateTime DateOfBirth { get; set; } = DateTime.Now;
         private string Adress { get; set; } = String.Empty;
         private string Passport { get; set; } = String.Empty;
-        private string PhoneNumber { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
 
         public Person(string firstName, string lastName, DateTime dateOfBirth, string adress, string passport,
             string phoneNumber)
@@ -21,7 +21,11 @@ namespace BankSystem.Domain.Models
             this.Passport = passport;
             this.PhoneNumber = phoneNumber;
         }
-        
+
+        public Person()
+        {
+            
+        }
         public override string ToString() =>  $"Имя: {FirstName}\n" +
                                             $"Фамилия: {LastName}\n" +
                                             $"Дата рождения: {DateOfBirth}\n" +
