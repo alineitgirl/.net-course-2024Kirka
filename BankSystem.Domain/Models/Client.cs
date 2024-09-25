@@ -9,15 +9,25 @@ namespace BankSystem.Domain.Models
     {
 
         private Guid Id { get; }
-        private decimal AccountBalance = Decimal.Zero;
+        private double AccountBalance = 0;
         private string Preferences = String.Empty;
+        public int Age { get; set; } = 0;
         
         public Client (string firstName, string lastName, DateTime dateOfBirth, string address, string passport, string phoneNumber,
-            decimal accountBalance, string preferences): base(firstName, lastName, dateOfBirth,
+            double accountBalance, string preferences, int age): base(firstName, lastName, dateOfBirth,
             address, passport, phoneNumber) {
-            this.Id = new Guid();
+            this.Id = Guid.NewGuid();
             this.AccountBalance = accountBalance;
             this.Preferences = preferences;
+            this.Age = age;
         }
+        
+        public override string ToString()
+        {
+            return base.ToString() + $"\nОстаток на счету: {AccountBalance}\n" +
+                   $"Предпочтения: {Preferences}\n" +
+                   $"Возраст: {Age}\n";
+        }
+        
     }
 }
