@@ -22,10 +22,7 @@ namespace BankSystem.Domain.Models
             this.PhoneNumber = phoneNumber;
         }
 
-        public Person()
-        {
-            
-        }
+       
         public override string ToString() =>  $"Имя: {FirstName}\n" +
                                             $"Фамилия: {LastName}\n" +
                                             $"Дата рождения: {DateOfBirth}\n" +

@@ -21,11 +21,6 @@ namespace BankSystem.Domain.Models
             this.Preferences = preferences;
             this.Age = age;
         }
-
-        public Client()
-        {
-            
-        }
         
         public override string ToString()
         {
