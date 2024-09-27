@@ -34,9 +34,9 @@ namespace Practice
             
             //list and dictionary types
             TestDataGenerator testDataGenerator = new TestDataGenerator();
-            var listOfClients =  testDataGenerator.GenerateListOfClients();
+            var listOfClients =  testDataGenerator.GenerateListOfClients(1000);
             var dictionaryOfClients = testDataGenerator.GenerateDictionaryOfClients();
-            var listOfEmployees = testDataGenerator.GenerateListOfEmployees();
+            var listOfEmployees = testDataGenerator.GenerateListOfEmployees(1000);
             SearchClientInList(1000, listOfClients);
             SearchClientInDictionary(1000, dictionaryOfClients);
             SearchClientByAge(listOfClients);

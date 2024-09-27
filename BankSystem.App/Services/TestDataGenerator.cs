@@ -13,7 +13,7 @@ namespace BankSystem.App.Services
             return ((i + 10000) * 7).ToString();
         }
         
-        public List<Client> GenerateListOfClients()
+        public List<Client> GenerateListOfClients(int countOfClients)
         {
 
             var preferences = new List<string>()
@@ -24,7 +24,7 @@ namespace BankSystem.App.Services
             
             var clients = new List<Client>();
             Random rand = new Random();
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < countOfClients; i++)
             {
                 clients.Add(new Client("firstName_" + i, "lastName_" + i, DateTime.Today, i + "adress", "passport_" + i,
                     _generatePhoneNumber(i), (rand.Next(0, 1899305)) / 3.0,
@@ -50,7 +50,7 @@ namespace BankSystem.App.Services
             return clients;
         }
 
-        public List<Employee> GenerateListOfEmployees()
+        public List<Employee> GenerateListOfEmployees(int countOfEmployees)
         {
             var  positions= new List<string>()
             {
@@ -70,7 +70,7 @@ namespace BankSystem.App.Services
             };
             var employees = new List<Employee>();
             Random rand = new Random();
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < countOfEmployees; i++)
             {
 
                 employees.Add(new Employee("firstName_" + i, "lastName_" + i, DateTime.Today, i + "adress", "passport_" + i,
@@ -79,6 +79,31 @@ namespace BankSystem.App.Services
             }
 
             return employees;
+        }
+
+        public List<Account> GenerateAccountOfClient(int numberOfClients)
+        {
+            Random rand = new Random();
+            List<Account> accounts = new List<Account>();
+            List<string> currencies = new List<string>() { "RUP", "USD", "EUR", "MDL", "UAH", "RUB"};
+            for (int i = 0; i < numberOfClients + 1; i++)
+            {
+                accounts.Add(new Account(currencies[rand.Next(currencies.Count)],  numberOfClients * 9 + 12345));
+            }
+
+            return accounts;
+        }
+        
+        public Dictionary<Client, List<Account>> GenerateClientsDictionary(int countOfClients)
+        {
+            var dictionaryOfClients = new Dictionary<Client, List<Account>>();
+            List<Client> clients = GenerateListOfClients(countOfClients);
+            for (int i = 0; i < countOfClients; i++)
+            {
+                var listOfAccounts = GenerateAccountOfClient(i);
+                dictionaryOfClients.Add(clients[i], listOfAccounts);
+            }
+            return dictionaryOfClients;
         }
     }
 }
