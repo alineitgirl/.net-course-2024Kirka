@@ -18,7 +18,18 @@ namespace BankSystem.App.Tests
             var clientsDictionary = testDataGenerator.GenerateClientsDictionary(10);
             var searchedClient = clientsDictionary.FirstOrDefault(
                 cl => cl.Key.PhoneNumber == "70000").Key;
-            var newClient = new Client(searchedClient) {Id = searchedClient.Id};
+            var newClient = new Client
+            {
+                Id = searchedClient.Id,
+                FirstName =  searchedClient.FirstName,
+                LastName =  searchedClient.LastName,
+                AccountBalance = searchedClient.AccountBalance,
+                Adress = searchedClient.Adress,
+                Age = searchedClient.Age,
+                DateOfBirth = searchedClient.DateOfBirth,
+                Passport = searchedClient.Passport,
+                PhoneNumber = searchedClient.PhoneNumber
+            };
 
             //Assert
             Assert.True(clientsDictionary.TryGetValue(newClient, out List<Account> accounts));
@@ -40,7 +51,7 @@ namespace BankSystem.App.Tests
         }
     
         [Fact]
-        public void CompareEmployeesWithOverrideGetHashCode()
+        public void EmployeesWithSameData_AreEqual()
         {
             //Arrange
             TestDataGenerator testDataGenerator = new TestDataGenerator();
@@ -48,7 +59,18 @@ namespace BankSystem.App.Tests
             //Act
             var listOfEmployees = testDataGenerator.GenerateListOfEmployees(10);
             var searchedEmployee = listOfEmployees.FirstOrDefault(emp => emp.PhoneNumber == "70035");
-            var newEmployee = new Employee(searchedEmployee) {Id = searchedEmployee.Id};
+            var newEmployee = new Employee
+            {
+                Id = searchedEmployee.Id,
+                FirstName = searchedEmployee.FirstName,
+                LastName = searchedEmployee.LastName,
+                Adress = searchedEmployee.Adress,
+                Contract = searchedEmployee.Contract,
+                DateOfBirth = searchedEmployee.DateOfBirth,
+                Department = searchedEmployee.Department,
+                Passport = searchedEmployee.Passport,
+                PhoneNumber = searchedEmployee.PhoneNumber
+            };
         
             //Assert
             Assert.True(searchedEmployee.Equals(newEmployee));

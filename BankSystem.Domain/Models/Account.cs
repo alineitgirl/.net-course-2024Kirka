@@ -4,13 +4,8 @@ namespace BankSystem.Domain.Models
 {
     public class Account
     {
-        private string _currency = String.Empty;
+        public string Currency { get; set; }
         public double Amount = 0;
-
-        public Account(string currency, double amount)
-        {
-            _currency = currency;
-            Amount = amount;
-        }
+        
     }
 }

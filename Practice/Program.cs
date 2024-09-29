@@ -15,13 +15,28 @@ namespace Practice
         static void Main(string[] args)
         {
             //value and reference types
-            Employee employee = new Employee("Иван", "Иванов", new DateTime(1979, 12, 13), "г. Тирасполь",
-                "I-ПР345678", "077845632", "backend-разработчик", "IT-отдел", 8575, "junior");
+            Employee employee = new Employee
+            {
+                FirstName = "Иван",
+                LastName = "Иванов",
+                DateOfBirth = new DateTime(1979, 12, 13),
+                Adress = "г. Тирасполь",
+                Passport = "I-ПР345678",
+                PhoneNumber = "077845632",
+                Position = "backend-разработчик",
+                Department = "IT-отдел",
+                Salary = 8575,
+            };
+                
             Console.WriteLine(employee.ToString());
             ChangeEmployeesContract(employee);
             Console.WriteLine(employee.ToString());
             
-            Currency currency = new Currency("EUR", "Евро", "E");
+            Currency currency = new Currency {
+                CurrencyCode = "EUR", 
+                CurrencyName = "Евро", 
+                CurrencySymbol = "E"};
+            
             Console.WriteLine(currency.ToString());
             UpdateCurrency(currency);
             Console.WriteLine(currency.ToString());
