@@ -13,7 +13,7 @@ namespace BankSystem.App.Services
             return ((i + 10000) * 7).ToString();
         }
         
-        public List<Client> GenerateListOfClients()
+        public List<Client> GenerateListOfClients(int countOfClients)
         {
 
             var preferences = new List<string>()
@@ -24,11 +24,20 @@ namespace BankSystem.App.Services
             
             var clients = new List<Client>();
             Random rand = new Random();
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < countOfClients; i++)
             {
-                clients.Add(new Client("firstName_" + i, "lastName_" + i, DateTime.Today, i + "adress", "passport_" + i,
-                    _generatePhoneNumber(i), (rand.Next(0, 1899305)) / 3.0,
-                    preferences[rand.Next(0, preferences.Count)], rand.Next(18, 88)));
+                clients.Add(new Client
+                {
+                    FirstName = "firstName_" + i, 
+                    LastName = "lastName_" + i, 
+                    DateOfBirth = DateTime.Today, 
+                    Adress =  i + "adress", 
+                    Passport = "passport_" + i,
+                    PhoneNumber = _generatePhoneNumber(i),
+                    AccountBalance =  (rand.Next(0, 1899305)) / 3.0,
+                    Age = rand.Next(18, 88)
+                }
+                );
             }
 
             return clients;
@@ -50,7 +59,7 @@ namespace BankSystem.App.Services
             return clients;
         }
 
-        public List<Employee> GenerateListOfEmployees()
+        public List<Employee> GenerateListOfEmployees(int countOfEmployees)
         {
             var  positions= new List<string>()
             {
@@ -70,15 +79,54 @@ namespace BankSystem.App.Services
             };
             var employees = new List<Employee>();
             Random rand = new Random();
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < countOfEmployees; i++)
             {
 
-                employees.Add(new Employee("firstName_" + i, "lastName_" + i, DateTime.Today, i + "adress", "passport_" + i,
-                    _generatePhoneNumber(i), positions[rand.Next(0, positions.Count)],
-                    departments[rand.Next(0, departments.Count)], rand.Next(4500, 20000) / 3.0, ""));
+                employees.Add(new Employee
+                {
+                    FirstName = "firstName_" + i, 
+                    LastName = "lastName_" + i, 
+                    DateOfBirth = DateTime.Today, 
+                    Adress = i + "adress", 
+                    Passport = "passport_" + i,
+                    PhoneNumber = _generatePhoneNumber(i),
+                    Position =  positions[rand.Next(0, positions.Count)],
+                    Department = departments[rand.Next(0, departments.Count)],
+                    Salary = rand.Next(4500, 20000) / 3.0, 
+                }
+                );
             }
 
             return employees;
+        }
+
+        public List<Account> GenerateAccountOfClient(int numberOfClients)
+        {
+            Random rand = new Random();
+            List<Account> accounts = new List<Account>();
+            List<string> currencies = new List<string>() { "RUP", "USD", "EUR", "MDL", "UAH", "RUB"};
+            for (int i = 0; i < numberOfClients + 1; i++)
+            {
+                accounts.Add(new Account
+                {
+                    Currency = currencies[rand.Next(currencies.Count)],  
+                    Amount = numberOfClients * 9 + 12345
+                });
+            }
+
+            return accounts;
+        }
+        
+        public Dictionary<Client, List<Account>> GenerateClientsDictionary(int countOfClients)
+        {
+            var dictionaryOfClients = new Dictionary<Client, List<Account>>();
+            List<Client> clients = GenerateListOfClients(countOfClients);
+            for (int i = 0; i < countOfClients; i++)
+            {
+                var listOfAccounts = GenerateAccountOfClient(i);
+                dictionaryOfClients.Add(clients[i], listOfAccounts);
+            }
+            return dictionaryOfClients;
         }
     }
 }
