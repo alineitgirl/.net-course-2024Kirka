@@ -21,11 +21,7 @@ namespace BankSystem.Domain.Models
             this.Passport = passport;
             this.PhoneNumber = phoneNumber;
         }
-
-        protected Person()
-        {
-            
-        }
+        
         public override string ToString() =>  $"Имя: {FirstName}\n" +
                                               $"Фамилия: {LastName}\n" +
                                               $"Дата рождения: {DateOfBirth}\n" +
