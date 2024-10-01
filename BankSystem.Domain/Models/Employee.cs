@@ -9,6 +9,7 @@ namespace BankSystem.Domain.Models
         public string Department { get; set; }
         public double Salary { get; set; } = 0;
         public string Contract { get; set; }= "Контракт сотрудника по умолчанию";
+        public int Age { get; set; }
 
 
         public override string ToString()
@@ -23,12 +24,12 @@ namespace BankSystem.Domain.Models
             if (obj is null || !(obj is Employee))
                 return false;
             var employee = (Employee) obj;
-            return this.Id == employee.Id && this.PhoneNumber == employee.PhoneNumber && this.Passport == employee.Passport;
+            return this.PhoneNumber == employee.PhoneNumber;
         }
 
         public override int GetHashCode()
         {
-            return Id.GetHashCode() + PhoneNumber.GetHashCode() + Passport.GetHashCode();
+            return PhoneNumber.GetHashCode();
         }
     }
 }

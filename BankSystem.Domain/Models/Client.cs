@@ -23,12 +23,12 @@ namespace BankSystem.Domain.Models
             if (obj is null || !(obj is Client))
                 return false;
             var client = (Client) obj;
-            return this.Id == client.Id && this.PhoneNumber == client.PhoneNumber && this.Passport == client.Passport;
+            return this.PhoneNumber == client.PhoneNumber;
         }
 
         public override int GetHashCode()
         {
-            return Id.GetHashCode() + PhoneNumber.GetHashCode() + Passport.GetHashCode();
+            return  PhoneNumber.GetHashCode();
         }
     }
 }
