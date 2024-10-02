@@ -93,6 +93,7 @@ namespace BankSystem.App.Services
                     Position =  positions[rand.Next(0, positions.Count)],
                     Department = departments[rand.Next(0, departments.Count)],
                     Salary = rand.Next(4500, 20000) / 3.0, 
+                    Age = rand.Next(20, 75)
                 }
                 );
             }
