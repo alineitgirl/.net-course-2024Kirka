@@ -60,18 +60,18 @@ namespace BankSystem.Data.Storages
             return _employees.FirstOrDefault(empl => empl.PhoneNumber == employee.PhoneNumber);
         }
         
-        public IEnumerable<Employee> FindTheYoungestEmployee()
+        public Employee FindTheYoungestEmployee()
         {
             var minAge = _employees.Min(empl => empl.Age);
-            var employeesWithMinAge = _employees.Where(empl => empl.Age == minAge);
-            return employeesWithMinAge;
+            var employeesWithMinAge = _employees.Where(empl => empl.Age == minAge).ToList();
+            return employeesWithMinAge.FirstOrDefault(empl => empl.Age == minAge);
         }
 
-        public IEnumerable<Employee> FindTheOldestEmployee()
+        public Employee FindTheOldestEmployee()
         {
             var maxAge = _employees.Max(empl => empl.Age);
-            var employeesWithMaxAge = _employees.Where(empl => empl.Age == maxAge);
-            return employeesWithMaxAge;
+            var employeesWithMaxAge = _employees.Where(empl => empl.Age == maxAge).ToList();
+            return employeesWithMaxAge.FirstOrDefault(empl => empl.Age == maxAge);
         }
 
         public double CalculateAverageAgeOfEmployees()
