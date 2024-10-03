@@ -59,21 +59,21 @@ namespace BankSystem.Data.Storages
             return _dictionaryOfClients.TryGetValue(client, out List<Account> accounts);
         }
 
-        public IEnumerable<KeyValuePair<Client, List<Account>>> FindTheYoungestClient()
+        public KeyValuePair<Client, List<Account>> FindTheYoungestClient()
         {
             var minAge = _dictionaryOfClients.Min(cl => cl.Key.Age);
-            var clientsWithMinAge = _dictionaryOfClients.Where(cl => cl.Key.Age == minAge);
-            return clientsWithMinAge;
+            var clientsWithMinAge = _dictionaryOfClients.Where(cl => cl.Key.Age == minAge).ToList();
+            return clientsWithMinAge.FirstOrDefault(cl => cl.Key.Age == minAge);
         }
 
-        public IEnumerable<KeyValuePair<Client, List<Account>>> FindTheOldestClient()
+        public KeyValuePair<Client, List<Account>> FindTheOldestClient()
         {
             var maxAge = _dictionaryOfClients.Max(cl => cl.Key.Age);
-            var clientsWithMaxAge = _dictionaryOfClients.Where(cl => cl.Key.Age == maxAge);
-            return clientsWithMaxAge;
+            var clientsWithMaxAge = _dictionaryOfClients.Where(cl => cl.Key.Age == maxAge).ToList();
+            return clientsWithMaxAge.FirstOrDefault(cl => cl.Key.Age == maxAge);
         }
 
-        public double CalculateAverageAgeOfCLients()
+        public double CalculateAverageAgeOfClients()
         {
            return  _dictionaryOfClients.Average(cl => cl.Key.Age);
         }

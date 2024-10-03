@@ -55,17 +55,17 @@ namespace BankSystem.Data.Tests
             newClient.PhoneNumber = "70001";
             bool resultOfDeleting =
                 clientStorage.DeleteClientFromStorage(new KeyValuePair<Client, List<Account>>(newClient, accounts));
-            var youngestClients = clientStorage.FindTheYoungestClient();
-            var oldestClients = clientStorage.FindTheOldestClient();
+            var youngestClient = clientStorage.FindTheYoungestClient();
+            var oldestClient = clientStorage.FindTheOldestClient();
             
 
             //Assert
             Assert.True(resultOfAdding);
             Assert.False(clientStorage.SearchClientInStorage(newClient));
             Assert.True(resultOfDeleting);
-            Assert.True(youngestClients.All(cl => cl.Key.Age == 18));
-            Assert.True(oldestClients.All(cl => cl.Key.Age == 87));
-            Assert.InRange(clientStorage.CalculateAverageAgeOfCLients(), 25, 60);
+            Assert.True(youngestClient.Key.Age == 18);
+            Assert.True(oldestClient.Key.Age == 87);
+            Assert.InRange(clientStorage.CalculateAverageAgeOfClients(), 25, 60);
         }
 
         [Fact]
@@ -110,8 +110,8 @@ namespace BankSystem.Data.Tests
             Assert.False(resultOfAdding);
             Assert.False(resultOfDeleting);
             Assert.IsType<Employee>(employeeStorage.SearchEmployeeInStorage(newEmployee));
-            Assert.True(youngestEmployee.All(empl => empl.Age == 18));
-            Assert.True(oldestEmployee.All(empl => empl.Age == 74));
+            Assert.True(youngestEmployee.Age == 18);
+            Assert.True(oldestEmployee.Age == 74);
             Assert.InRange(employeeStorage.CalculateAverageAgeOfEmployees(), 25, 60);
         }
     }
