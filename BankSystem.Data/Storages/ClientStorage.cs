@@ -10,6 +10,7 @@ namespace BankSystem.Data.Storages
     public class ClientStorage
     {
         private Dictionary<Client, List<Account>> _dictionaryOfClients;
+        public IReadOnlyDictionary<Client, List<Account>> DictionaryOfClients => _dictionaryOfClients;
 
         public ClientStorage(Dictionary<Client, List<Account>> clients)
         {

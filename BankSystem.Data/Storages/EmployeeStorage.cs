@@ -7,6 +7,7 @@ namespace BankSystem.Data.Storages
     public class EmployeeStorage
     {
         private List<Employee> _employees;
+        public IReadOnlyList<Employee> Employees => _employees;
 
         public EmployeeStorage(List<Employee> employees)
         {
@@ -57,7 +58,7 @@ namespace BankSystem.Data.Storages
 
         public Employee? SearchEmployeeInStorage(Employee employee)
         {
-            return _employees.FirstOrDefault(empl => empl.PhoneNumber == employee.PhoneNumber);
+            return _employees.FirstOrDefault(empl => empl.Equals(employee));
         }
         
         public Employee FindTheYoungestEmployee()
