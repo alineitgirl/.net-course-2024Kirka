@@ -16,7 +16,7 @@ namespace BankSystem.App.Services
             _employeeStorage = employeeStorage;
         }
         
-        public void AddEmployeeToService(Employee newEmployee)
+        public void AddEmployee(Employee newEmployee)
         {
             if (newEmployee.Age < 18)
             {
@@ -27,41 +27,20 @@ namespace BankSystem.App.Services
             {
                 throw new NoInfoAboutPassportNumberException("Не указаны паспортные данные у сотрудника!");
             }
-
-            if (_employeeStorage.AddEmployeeToStorage(newEmployee)) return;
+            
             _employeeStorage.AddEmployeeToStorage(newEmployee);
 
         }
         
-        public void UpdateEmployeeFromService (Employee oldEmployee, Employee newEmployee)
+        public void UpdateEmployee (Employee oldEmployee, Employee newEmployee)
         {
-            if (!(_employeeStorage.Employees.Contains(oldEmployee)))
-            {
-                _employeeStorage.AddEmployeeToStorage(oldEmployee);
-            }
-            var searchedEmployee = _employeeStorage.Employees.FirstOrDefault(empl => empl.Equals(oldEmployee));
-                searchedEmployee.FirstName= newEmployee.FirstName;
-                searchedEmployee.LastName = newEmployee.LastName;
-                searchedEmployee.DateOfBirth = newEmployee.DateOfBirth;
-                searchedEmployee.Adress = newEmployee.Adress;
-                searchedEmployee.Passport = newEmployee.Passport;
-                searchedEmployee.PhoneNumber = newEmployee.PhoneNumber;
-                searchedEmployee.Id = newEmployee.Id;
-                searchedEmployee.Position = newEmployee.Position;
-                searchedEmployee.Salary = newEmployee.Salary;
-                searchedEmployee.Age = newEmployee.Age;
+            _employeeStorage.UpdateEmployeeFromStorage(oldEmployee, newEmployee);
         }
         
 
         public List<Employee>? GetEmployeesByFilter(Func<Employee, bool> filter = null)
         {
-            if (filter is null)
-            {
-                return _employeeStorage.Employees.ToList();
-            }
-            var selectedEmployees = _employeeStorage.Employees.Where(empl => filter(empl))
-                .ToList();
-            return selectedEmployees;
+            return _employeeStorage.GetEmployeesByFilter(filter);
         }
     }
 }

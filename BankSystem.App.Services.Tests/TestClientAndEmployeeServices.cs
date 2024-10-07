@@ -27,7 +27,7 @@ namespace BankSystem.App.Services.Tests
                 });
 
             //Assert
-            Assert.Throws<AgeOutOfRangeException>(() => clientService.AddClientToService(newClient));
+            Assert.Throws<AgeOutOfRangeException>(() => clientService.AddClient(newClient));
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace BankSystem.App.Services.Tests
                 });
 
             //Assert
-            Assert.Throws<NoInfoAboutPassportNumberException>(() => clientService.AddClientToService(newClient));
+            Assert.Throws<NoInfoAboutPassportNumberException>(() => clientService.AddClient(newClient));
         }
 
         [Fact]
@@ -75,7 +75,7 @@ namespace BankSystem.App.Services.Tests
                 new List<Account>());
             
             //Act 
-            clientService.AddClientToService(newClient);
+            clientService.AddClient(newClient);
             clientService.AddNewAccountToClient(newClient, new Account {Amount = 123, Currency = "EUR"});
             clientService.UpdateAddedAccountOfClient(newClient,new Account {Amount = 123, Currency = "EUR"}, 
                 new Account {Amount = 444, Currency = "RUP"});
@@ -112,7 +112,7 @@ namespace BankSystem.App.Services.Tests
             };
 
             //Assert
-            Assert.Throws<AgeOutOfRangeException>(() => employeeService.AddEmployeeToService(newEmployee));
+            Assert.Throws<AgeOutOfRangeException>(() => employeeService.AddEmployee(newEmployee));
         }
 
         [Fact]
@@ -131,7 +131,7 @@ namespace BankSystem.App.Services.Tests
             };
 
             //Assert
-            Assert.Throws<NoInfoAboutPassportNumberException>(() => employeeService.AddEmployeeToService(newEmployee));
+            Assert.Throws<NoInfoAboutPassportNumberException>(() => employeeService.AddEmployee(newEmployee));
         }
 
         [Fact]
@@ -161,7 +161,7 @@ namespace BankSystem.App.Services.Tests
 
 
             //Act
-            employeeService.AddEmployeeToService(newEmployee);
+            employeeService.AddEmployee(newEmployee);
             var employeeToUpdate = new Employee
             {
                 FirstName = "",
@@ -177,7 +177,7 @@ namespace BankSystem.App.Services.Tests
                 empl.Equals(employeeToSearch) && empl.DateOfBirth >= new DateTime(2000, 12, 31)
                                               && empl.DateOfBirth <= new DateTime(2024, 10, 04));
             var allEmployees = employeeService.GetEmployeesByFilter();
-            employeeService.UpdateEmployeeFromService(newEmployee, employeeToUpdate);
+            employeeService.UpdateEmployee(newEmployee, employeeToUpdate);
 
 
             //Assert

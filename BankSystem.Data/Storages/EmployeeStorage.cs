@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BankSystem.Domain.Models;
 
@@ -7,7 +8,6 @@ namespace BankSystem.Data.Storages
     public class EmployeeStorage
     {
         private List<Employee> _employees;
-        public IReadOnlyList<Employee> Employees => _employees;
 
         public EmployeeStorage(List<Employee> employees)
         {
@@ -27,20 +27,23 @@ namespace BankSystem.Data.Storages
             }
         }
 
-        public void UpdateEmployeeFromStorage(Employee employee)
+        public void UpdateEmployeeFromStorage(Employee oldEmployee, Employee newEmployee)
         {
-            if (_employees.Contains(employee))
+            if (!(_employees.Contains(oldEmployee)))
             {
-                int indexOfEmployee = _employees.FindIndex(empl => empl.PhoneNumber == employee.PhoneNumber);
-                if (indexOfEmployee != -1)
-                {
-                    _employees[indexOfEmployee] = employee;
-                }
+                AddEmployeeToStorage(oldEmployee);
             }
-            else
-            {
-                AddEmployeeToStorage(employee);
-            }
+            var searchedEmployee = _employees.FirstOrDefault(empl => empl.Equals(oldEmployee));
+            searchedEmployee.FirstName= newEmployee.FirstName;
+            searchedEmployee.LastName = newEmployee.LastName;
+            searchedEmployee.DateOfBirth = newEmployee.DateOfBirth;
+            searchedEmployee.Adress = newEmployee.Adress;
+            searchedEmployee.Passport = newEmployee.Passport;
+            searchedEmployee.PhoneNumber = newEmployee.PhoneNumber;
+            searchedEmployee.Id = newEmployee.Id;
+            searchedEmployee.Position = newEmployee.Position;
+            searchedEmployee.Salary = newEmployee.Salary;
+            searchedEmployee.Age = newEmployee.Age;
         }
 
         public bool DeleteEmployeeFromStorage(Employee employee)
@@ -56,11 +59,16 @@ namespace BankSystem.Data.Storages
             }
         }
 
-        public Employee? SearchEmployeeInStorage(Employee employee)
+        public List<Employee> GetEmployeesByFilter(Func<Employee, bool> filter = null)
         {
-            return _employees.FirstOrDefault(empl => empl.Equals(employee));
+            if (filter is null)
+            {
+                return _employees;
+            }
+            var selectedEmployees = _employees.Where(empl => filter(empl))
+                .ToList();
+            return selectedEmployees;
         }
-        
         public Employee FindTheYoungestEmployee()
         {
             var minAge = _employees.Min(empl => empl.Age);

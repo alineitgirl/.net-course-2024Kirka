@@ -10,7 +10,6 @@ namespace BankSystem.Data.Storages
     public class ClientStorage
     {
         private Dictionary<Client, List<Account>> _dictionaryOfClients;
-        public IReadOnlyDictionary<Client, List<Account>> DictionaryOfClients => _dictionaryOfClients;
 
         public ClientStorage(Dictionary<Client, List<Account>> clients)
         {
@@ -28,6 +27,32 @@ namespace BankSystem.Data.Storages
             {
                 return false;
             }
+        }
+
+        public void AddAccount(KeyValuePair<Client, List<Account>> client, Account account)
+        {
+            if (_dictionaryOfClients.TryGetValue(client.Key, out var accounts))
+            {
+                accounts.Add(account);
+            }
+        }
+
+        public void AddDefaultUsdAccountToClient(List<Account> accounts)
+        {
+            accounts.Add(new Account {Amount = 0, Currency = "USD"});
+        }
+
+        public void UpdateAccountOfClient(KeyValuePair<Client, List<Account>> client, Account oldAccount,
+            Account updatedAccount)
+        {
+            if (!(client.Value.Contains(oldAccount)))
+            {
+                AddAccount(client, updatedAccount);
+                return;
+            }
+            var searchedAccount = client.Value.FirstOrDefault(acc => acc.Equals(oldAccount));
+            searchedAccount.Amount = updatedAccount.Amount;
+            searchedAccount.Currency = updatedAccount.Currency;
         }
 
         public void UpdateClientFromStorage(KeyValuePair<Client, List<Account>> client)
@@ -55,9 +80,15 @@ namespace BankSystem.Data.Storages
             }
         }
 
-        public bool SearchClientInStorage(Client client)
+        public Dictionary<Client, List<Account>> GetClientsByFilter(Func<Client, bool> filter = null)
         {
-            return _dictionaryOfClients.TryGetValue(client, out List<Account> accounts);
+            if (filter is null)
+            {
+                return _dictionaryOfClients;
+            }
+            var selectedClients = _dictionaryOfClients.Where(cl => filter(cl.Key))
+                .ToDictionary(cl => cl.Key, cl => cl.Value);
+            return selectedClients;
         }
 
         public KeyValuePair<Client, List<Account>> FindTheYoungestClient()

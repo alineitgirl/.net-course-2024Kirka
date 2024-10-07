@@ -60,7 +60,7 @@ namespace BankSystem.Data.Tests
 
             //Assert
             Assert.True(resultOfAdding);
-            Assert.False(clientStorage.SearchClientInStorage(newClient));
+            Assert.Single(clientStorage.GetClientsByFilter(client => client.Equals(newClient)));
             Assert.True(resultOfDeleting);
             Assert.True(youngestClient.Key.Age == 18);
             Assert.True(oldestClient.Key.Age == 87);
@@ -108,7 +108,7 @@ namespace BankSystem.Data.Tests
             //Assert
             Assert.True(resultOfAdding);
             Assert.True(resultOfDeleting);
-            Assert.IsType<Employee>(employeeStorage.SearchEmployeeInStorage(newEmployee));
+            Assert.IsType<List<Employee>>(employeeStorage.GetEmployeesByFilter(empl => empl.Equals(newEmployee)));
             Assert.True(youngestEmployee.Age == 18);
             Assert.True(oldestEmployee.Age == 74);
             Assert.InRange(employeeStorage.CalculateAverageAgeOfEmployees(), 25, 60);

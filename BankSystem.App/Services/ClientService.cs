@@ -18,7 +18,7 @@ namespace BankSystem.App.Services
             _clientStorage = clientStorage;
         }
 
-        public void AddClientToService(KeyValuePair<Client, List<Account>> newClient)
+        public void AddClient(KeyValuePair<Client, List<Account>> newClient)
         {
             if (newClient.Key.Age < 18)
             {
@@ -30,49 +30,26 @@ namespace BankSystem.App.Services
                 throw new NoInfoAboutPassportNumberException("Не указаны паспортные данные у клиента!");
             }
 
-            if (_clientStorage.SearchClientInStorage(newClient.Key)) return;
-            _addDefaultUsdAccountToClient(newClient.Value);
+            if (_clientStorage.GetClientsByFilter(client => client.Equals(newClient.Key)).Any()) return;
+            _clientStorage.AddDefaultUsdAccountToClient(newClient.Value);
             _clientStorage.AddClientToStorage(newClient);
 
         }
-
-        private void _addDefaultUsdAccountToClient(List<Account> accounts)
-        {
-            accounts.Add(new Account {Amount = 0, Currency = "USD"});
-        }
-
+        
         public void AddNewAccountToClient(KeyValuePair<Client, List<Account>> client, Account account)
         {
-            if (_clientStorage.SearchClientInStorage(client.Key))
-            {
-                var searchedClient = _clientStorage.DictionaryOfClients.FirstOrDefault(cl 
-                    => cl.Key.Equals(client.Key));
-                searchedClient.Value.Add(account);
-            }
+            _clientStorage.AddAccount(client, account);
         }
 
         public void UpdateAddedAccountOfClient(KeyValuePair<Client, List<Account>> client, Account oldAccount,
             Account updatedAccount)
         {
-            if (!(client.Value.Contains(oldAccount)))
-            {
-                AddNewAccountToClient(client, updatedAccount);
-            }
-            var searchedAccount = client.Value.FirstOrDefault(acc => acc.Equals(oldAccount));
-                searchedAccount.Amount = updatedAccount.Amount;
-                searchedAccount.Currency = updatedAccount.Currency;
+            _clientStorage.UpdateAccountOfClient(client, oldAccount, updatedAccount);
         }
 
         public Dictionary<Client, List<Account>> GetClientsByFilter(Func<Client, bool> filter = null)
         {
-            if (filter is null)
-            {
-                return _clientStorage.DictionaryOfClients.ToDictionary(cl => cl.Key,
-                    cl => cl.Value);
-            }
-            var selectedClients = _clientStorage.DictionaryOfClients.Where(cl => filter(cl.Key))
-                .ToDictionary(cl => cl.Key, cl => cl.Value);
-            return selectedClients;
+            return  _clientStorage.GetClientsByFilter(filter);
         }
         
     }
