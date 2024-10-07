@@ -16,7 +16,7 @@ namespace BankSystem.Data.Tests
         {
             //Arrange
             TestDataGenerator testDataGenerator = new TestDataGenerator();
-            ClientStorage clientStorage = new ClientStorage(testDataGenerator.GenerateClientsDictionary(10));
+            ClientStorage clientStorage = new ClientStorage(testDataGenerator.GenerateClientsDictionary(10)); 
             Client newClient = new Client()
             {
                 FirstName = "Ivan",
@@ -47,8 +47,7 @@ namespace BankSystem.Data.Tests
             };
 
             //Act
-            bool resultOfAdding =
-                clientStorage.AddClientToStorage(new KeyValuePair<Client, List<Account>>(newClient, accounts));
+            bool resultOfAdding = clientStorage.AddClientToStorage(new KeyValuePair<Client, List<Account>>(newClient, accounts));
             clientStorage.AddClientToStorage(new KeyValuePair<Client, List<Account>>(oldClient, accounts));
             newClient.PhoneNumber = "11111";
             clientStorage.UpdateClientFromStorage(new KeyValuePair<Client, List<Account>>(newClient, accounts));
@@ -61,7 +60,7 @@ namespace BankSystem.Data.Tests
 
             //Assert
             Assert.True(resultOfAdding);
-            Assert.False(clientStorage.SearchClientInStorage(newClient));
+            Assert.Single(clientStorage.GetClientsByFilter(client => client.Equals(newClient)));
             Assert.True(resultOfDeleting);
             Assert.True(youngestClient.Key.Age == 18);
             Assert.True(oldestClient.Key.Age == 87);
@@ -107,9 +106,9 @@ namespace BankSystem.Data.Tests
             var oldestEmployee = employeeStorage.FindTheOldestEmployee();
 
             //Assert
-            Assert.False(resultOfAdding);
-            Assert.False(resultOfDeleting);
-            Assert.IsType<Employee>(employeeStorage.SearchEmployeeInStorage(newEmployee));
+            Assert.True(resultOfAdding);
+            Assert.True(resultOfDeleting);
+            Assert.IsType<List<Employee>>(employeeStorage.GetEmployeesByFilter(empl => empl.Equals(newEmployee)));
             Assert.True(youngestEmployee.Age == 18);
             Assert.True(oldestEmployee.Age == 74);
             Assert.InRange(employeeStorage.CalculateAverageAgeOfEmployees(), 25, 60);
