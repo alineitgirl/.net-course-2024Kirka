@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing.Imaging;
 using System.Linq;
+using BankSystem.App.Interfaces;
 using BankSystem.Domain.Models;
 
 namespace BankSystem.Data.Storages
 {
-    public class ClientStorage
+    public class ClientStorage : IClientStorage
     {
         private Dictionary<Client, List<Account>> _dictionaryOfClients;
 
@@ -15,19 +16,56 @@ namespace BankSystem.Data.Storages
         {
             _dictionaryOfClients = clients;
         }
+        
+        public IEnumerable<KeyValuePair<Client, List<Account>>> Get(Func<KeyValuePair<Client, List<Account>>, bool> filter = null)
+        {
+            if (filter is null)
+            {
+                return _dictionaryOfClients;
+            }
+            var selectedClients = _dictionaryOfClients.Where(filter);
+            return selectedClients;
+        }
 
-        public bool AddClientToStorage(KeyValuePair<Client, List<Account>> client)
+
+        public void Add(KeyValuePair<Client, List<Account>> client)
         {
             if (!(_dictionaryOfClients.Contains(client)))
             {
                 _dictionaryOfClients.Add(client.Key, client.Value);
-                return true;
             }
-            else
+            AddDefaultUsdAccountToClient(client.Value);
+        }
+        
+        public void Update(KeyValuePair<Client, List<Account>> oldClient, KeyValuePair<Client, List<Account>> newClient)
+        {
+            if (!(_dictionaryOfClients.Contains(oldClient)))
             {
-                return false;
+                Add(oldClient);
+                return;
+            }
+
+            var searchedClient = _dictionaryOfClients.FirstOrDefault(cl => 
+                cl.Key.Equals(oldClient.Key));
+                searchedClient.Key.FirstName= newClient.Key.FirstName;
+                searchedClient.Key.LastName = newClient.Key.LastName;
+                searchedClient.Key.DateOfBirth = newClient.Key.DateOfBirth;
+                searchedClient.Key.Adress = newClient.Key.Adress;
+                searchedClient.Key.Passport = newClient.Key.Passport;
+                searchedClient.Key.PhoneNumber = newClient.Key.PhoneNumber;
+                searchedClient.Key.Id= newClient.Key.Id;
+                searchedClient.Key.AccountBalance = newClient.Key.AccountBalance;
+                searchedClient.Key.Age = newClient.Key.Age;
+        }
+        
+        public void Delete(KeyValuePair<Client, List<Account>> client)
+        {
+            if ((_dictionaryOfClients.Contains(client)))
+            {
+                _dictionaryOfClients.Remove(client.Key);
             }
         }
+
 
         public void AddAccount(KeyValuePair<Client, List<Account>> client, Account account)
         {
@@ -37,12 +75,12 @@ namespace BankSystem.Data.Storages
             }
         }
 
-        public void AddDefaultUsdAccountToClient(List<Account> accounts)
+        private void AddDefaultUsdAccountToClient(List<Account> accounts)
         {
             accounts.Add(new Account {Amount = 0, Currency = "USD"});
         }
 
-        public void UpdateAccountOfClient(KeyValuePair<Client, List<Account>> client, Account oldAccount,
+        public void UpdateAccount(KeyValuePair<Client, List<Account>> client, Account oldAccount,
             Account updatedAccount)
         {
             if (!(client.Value.Contains(oldAccount)))
@@ -55,59 +93,9 @@ namespace BankSystem.Data.Storages
             searchedAccount.Currency = updatedAccount.Currency;
         }
 
-        public void UpdateClientFromStorage(KeyValuePair<Client, List<Account>> client)
+        public void DeleteAccount(KeyValuePair<Client, List<Account>> client, Account accountToDelete)
         {
-            if (_dictionaryOfClients.Contains(client))
-            {
-                _dictionaryOfClients[client.Key] = client.Value;
-            }
-            else
-            {
-                AddClientToStorage(client);
-            }
-        }
-
-        public bool DeleteClientFromStorage(KeyValuePair<Client, List<Account>> client)
-        {
-            if ((_dictionaryOfClients.Contains(client)))
-            {
-                _dictionaryOfClients.Remove(client.Key);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public Dictionary<Client, List<Account>> GetClientsByFilter(Func<Client, bool> filter = null)
-        {
-            if (filter is null)
-            {
-                return _dictionaryOfClients;
-            }
-            var selectedClients = _dictionaryOfClients.Where(cl => filter(cl.Key))
-                .ToDictionary(cl => cl.Key, cl => cl.Value);
-            return selectedClients;
-        }
-
-        public KeyValuePair<Client, List<Account>> FindTheYoungestClient()
-        {
-            var minAge = _dictionaryOfClients.Min(cl => cl.Key.Age);
-            var clientsWithMinAge = _dictionaryOfClients.Where(cl => cl.Key.Age == minAge).ToList();
-            return clientsWithMinAge.FirstOrDefault(cl => cl.Key.Age == minAge);
-        }
-
-        public KeyValuePair<Client, List<Account>> FindTheOldestClient()
-        {
-            var maxAge = _dictionaryOfClients.Max(cl => cl.Key.Age);
-            var clientsWithMaxAge = _dictionaryOfClients.Where(cl => cl.Key.Age == maxAge).ToList();
-            return clientsWithMaxAge.FirstOrDefault(cl => cl.Key.Age == maxAge);
-        }
-
-        public double CalculateAverageAgeOfClients()
-        {
-           return  _dictionaryOfClients.Average(cl => cl.Key.Age);
+            client.Value.RemoveAll(cl => cl.Equals(accountToDelete));
         }
     }
 }
