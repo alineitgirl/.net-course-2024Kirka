@@ -42,7 +42,7 @@ namespace Practice
             Console.WriteLine(currency.ToString());
             
             //castingandtypeconversion
-            BankService bankService = new BankService();
+            BankService<Person> bankService = new BankService<Person>();
             Console.WriteLine(bankService.CountOwnersSalary(12345667, 34567, 10) == -1
                 ? "Ошибка: Количество владельцев банка не может быть равным 0"
                 : $"Зарплата каждого владельца банка: {bankService.CountOwnersSalary(12345667, 34567, 10)}");

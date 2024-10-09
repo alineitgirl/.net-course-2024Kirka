@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using BankSystem.App.Exceptions;
-using BankSystem.Data.Storages;
+using BankSystem.App.Interfaces;
 using BankSystem.Domain.Models;
 
 namespace BankSystem.App.Services
 {
     public class EmployeeService
     {
-        private EmployeeStorage _employeeStorage;
+        private IEmployeeStorage _employeeStorage;
 
-        public EmployeeService(EmployeeStorage employeeStorage)
+        public EmployeeService(IEmployeeStorage employeeStorage)
         {
             _employeeStorage = employeeStorage;
         }
@@ -28,19 +28,19 @@ namespace BankSystem.App.Services
                 throw new NoInfoAboutPassportNumberException("Не указаны паспортные данные у сотрудника!");
             }
             
-            _employeeStorage.AddEmployeeToStorage(newEmployee);
+            _employeeStorage.Add(newEmployee);
 
         }
         
-        public void UpdateEmployee (Employee oldEmployee, Employee newEmployee)
+        public void UpdateEmployee (Employee oldEmployee, Employee employeeToUpdate)
         {
-            _employeeStorage.UpdateEmployeeFromStorage(oldEmployee, newEmployee);
+            _employeeStorage.Update(oldEmployee, employeeToUpdate);
         }
         
 
         public List<Employee>? GetEmployeesByFilter(Func<Employee, bool> filter = null)
         {
-            return _employeeStorage.GetEmployeesByFilter(filter);
+            return _employeeStorage.Get(filter).ToList();
         }
     }
 }

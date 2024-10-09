@@ -3,11 +3,12 @@
     <PropertyGroup>
         <TargetFramework>net48</TargetFramework>
         <LangVersion>10.0</LangVersion>
-        <ImplicitUsings>enable</ImplicitUsings>
+        <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
+        <RootNamespace>BankSystem.Data.NewTests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -24,6 +25,7 @@
     <ItemGroup>
       <ProjectReference Include="..\BankSystem.App\BankSystem.App.csproj" />
       <ProjectReference Include="..\BankSystem.Data\BankSystem.Data.csproj" />
+      <ProjectReference Include="..\BankSystem.Domain\BankSystem.Domain.csproj" />
     </ItemGroup>
 
 </Project>

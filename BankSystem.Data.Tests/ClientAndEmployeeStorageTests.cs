@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.ExceptionServices;
+using Xunit;
 using BankSystem.App.Services;
 using BankSystem.Data.Storages;
 using BankSystem.Domain.Models;
-using Xunit;
 
 namespace BankSystem.Data.Tests
 {
@@ -47,24 +46,25 @@ namespace BankSystem.Data.Tests
             };
 
             //Act
-            bool resultOfAdding = clientStorage.AddClientToStorage(new KeyValuePair<Client, List<Account>>(newClient, accounts));
-            clientStorage.AddClientToStorage(new KeyValuePair<Client, List<Account>>(oldClient, accounts));
-            newClient.PhoneNumber = "11111";
-            clientStorage.UpdateClientFromStorage(new KeyValuePair<Client, List<Account>>(newClient, accounts));
-            newClient.PhoneNumber = "70001";
-            bool resultOfDeleting =
-                clientStorage.DeleteClientFromStorage(new KeyValuePair<Client, List<Account>>(newClient, accounts));
-            var youngestClient = clientStorage.FindTheYoungestClient();
-            var oldestClient = clientStorage.FindTheOldestClient();
-            
+            clientStorage.Add(new KeyValuePair<Client, List<Account>>(newClient, accounts));
+            clientStorage.Add(new KeyValuePair<Client, List<Account>>(oldClient, accounts));
+            clientStorage.Update(new KeyValuePair<Client, List<Account>>(oldClient, accounts), 
+                new KeyValuePair<Client, List<Account>>(newClient, accounts));
+            clientStorage.Delete(new KeyValuePair<Client, List<Account>>(newClient, accounts));
+            clientStorage.AddAccount(new KeyValuePair<Client, List<Account>>(newClient, accounts), 
+                new Account { Amount =  123.45, Currency = "EUR"});
+            clientStorage.UpdateAccount(new KeyValuePair<Client, List<Account>>(newClient, accounts),
+            new Account {Amount = 123.45, Currency = "EUR"}, new Account {Amount = 134, Currency = "RUP"});
+            clientStorage.DeleteAccount(new KeyValuePair<Client, List<Account>>(newClient, accounts), 
+                new Account {Amount = 1234.5, Currency = "USD"});
+
 
             //Assert
-            Assert.True(resultOfAdding);
-            Assert.Single(clientStorage.GetClientsByFilter(client => client.Equals(newClient)));
-            Assert.True(resultOfDeleting);
-            Assert.True(youngestClient.Key.Age == 18);
-            Assert.True(oldestClient.Key.Age == 87);
-            Assert.InRange(clientStorage.CalculateAverageAgeOfClients(), 25, 60);
+            Assert.Empty(clientStorage.Get(cl => cl.Key.Age == 18));
+            Assert.False(clientStorage.Get(cl => cl.Value.Contains(new Account
+            {
+                Amount = 1234.5, Currency = "USD"
+            })).Any());
         }
 
         [Fact]
@@ -97,21 +97,15 @@ namespace BankSystem.Data.Tests
             };
             
             //Act
-            bool resultOfAdding = employeeStorage.AddEmployeeToStorage(newEmployee);
-            newEmployee.PhoneNumber = "00000";
-            bool resultOfDeleting = employeeStorage.DeleteEmployeeFromStorage(newEmployee);
-            employeeStorage.AddEmployeeToStorage(newEmployee);
-            employeeStorage.AddEmployeeToStorage(oldEmployee);
-            var youngestEmployee = employeeStorage.FindTheYoungestEmployee();
-            var oldestEmployee = employeeStorage.FindTheOldestEmployee();
+            employeeStorage.Add(oldEmployee);
+            employeeStorage.Update(oldEmployee, newEmployee);
+            employeeStorage.Delete(newEmployee);
+            var employeesLivingInNewYork = employeeStorage.Get(empl =>
+                empl.Adress == "Tiraspol");
 
             //Assert
-            Assert.True(resultOfAdding);
-            Assert.True(resultOfDeleting);
-            Assert.IsType<List<Employee>>(employeeStorage.GetEmployeesByFilter(empl => empl.Equals(newEmployee)));
-            Assert.True(youngestEmployee.Age == 18);
-            Assert.True(oldestEmployee.Age == 74);
-            Assert.InRange(employeeStorage.CalculateAverageAgeOfEmployees(), 25, 60);
+            Assert.Empty(employeeStorage.Get(empl => empl.Equals(oldEmployee)));
+            Assert.Empty(employeesLivingInNewYork);
         }
     }
 }

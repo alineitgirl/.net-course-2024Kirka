@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using BankSystem.App.Exceptions;
+using BankSystem.App.Interfaces;
 using BankSystem.Data.Storages;
 using BankSystem.Domain.Models;
 using Xunit;
@@ -15,9 +16,10 @@ namespace BankSystem.App.Services.Tests
         {
             //Arrange
             TestDataGenerator testDataGenerator = new TestDataGenerator();
-            ClientService clientService = new ClientService(new ClientStorage(testDataGenerator.GenerateClientsDictionary(10)));
+            var clientsDictionary = testDataGenerator.GenerateClientsDictionary(10);
+            var clientService = new ClientService(new ClientStorage(clientsDictionary));
             
-            //Act
+            //Act    
             var newClient = new KeyValuePair<Client, List<Account>>(
                 new Client {FirstName = "Олег", LastName = "Скворцов", Age = 16},
                 new List<Account>
@@ -35,7 +37,8 @@ namespace BankSystem.App.Services.Tests
         {
             //Arrange
             TestDataGenerator testDataGenerator = new TestDataGenerator();
-            ClientService clientService = new ClientService(new ClientStorage(testDataGenerator.GenerateClientsDictionary(10)));
+            var clientsDictionary = testDataGenerator.GenerateClientsDictionary(10);
+            var clientService = new ClientService(new ClientStorage(clientsDictionary));
             
             //Act
             var newClient = new KeyValuePair<Client, List<Account>>(
@@ -55,7 +58,9 @@ namespace BankSystem.App.Services.Tests
         {
             //Arrange
             TestDataGenerator testDataGenerator = new TestDataGenerator();
-            ClientService clientService = new ClientService(new ClientStorage(testDataGenerator.GenerateClientsDictionary(10)));
+            var clientsDictionary = testDataGenerator.GenerateClientsDictionary(10);
+            var clientService = new ClientService(new ClientStorage(clientsDictionary));
+            
             var newClient = new KeyValuePair<Client, List<Account>>(
                 new Client
                 {
@@ -80,14 +85,14 @@ namespace BankSystem.App.Services.Tests
             clientService.UpdateAddedAccountOfClient(newClient,new Account {Amount = 123, Currency = "EUR"}, 
                 new Account {Amount = 444, Currency = "RUP"});
             var clientWithSameName  = clientService.GetClientsByFilter(cl =>
-                cl.FirstName == clientToSearch.Key.FirstName && cl.LastName == clientToSearch.Key.LastName);
+                cl.Key.FirstName == clientToSearch.Key.FirstName && cl.Key.LastName == clientToSearch.Key.LastName);
             var clientWithSamePhoneNumber = clientService.GetClientsByFilter(cl =>
-                cl.PhoneNumber == clientToSearch.Key.PhoneNumber);
+                cl.Key.PhoneNumber == clientToSearch.Key.PhoneNumber);
             var clientWithSamePassportNumber = clientService.GetClientsByFilter(cl =>
-                cl.Passport == clientToSearch.Key.Passport);
+                cl.Key.Passport == clientToSearch.Key.Passport);
             var clientWithAllFilters = clientService.GetClientsByFilter(cl =>
-                cl.Equals(clientToSearch.Key) && cl.DateOfBirth >= new DateTime(2000, 12, 31) && 
-                cl.DateOfBirth <= new DateTime(2010, 12, 31));
+                cl.Key.Equals(clientToSearch.Key) && cl.Key.DateOfBirth >= new DateTime(2000, 12, 31) && 
+                cl.Key.DateOfBirth <= new DateTime(2010, 12, 31));
 
             //Assert
             Assert.Single(clientWithSameName);
@@ -101,8 +106,9 @@ namespace BankSystem.App.Services.Tests
         {
             //Arrange
             TestDataGenerator testDataGenerator = new TestDataGenerator();
-            EmployeeService employeeService = new EmployeeService(new EmployeeStorage(testDataGenerator.GenerateListOfEmployees(10)));
-            
+            var employeesList = testDataGenerator.GenerateListOfEmployees(10);
+            var employeeService = new EmployeeService(new EmployeeStorage(employeesList));
+                
             //Act
             var newEmployee = new Employee()
             {
@@ -120,7 +126,8 @@ namespace BankSystem.App.Services.Tests
         {
             //Arrange
             TestDataGenerator testDataGenerator = new TestDataGenerator();
-            EmployeeService employeeService = new EmployeeService(new EmployeeStorage(testDataGenerator.GenerateListOfEmployees(10)));
+            var employeesList = testDataGenerator.GenerateListOfEmployees(10);
+            var employeeService = new EmployeeService(new EmployeeStorage(employeesList));
             
             //Act
             var newEmployee = new Employee()
@@ -139,7 +146,9 @@ namespace BankSystem.App.Services.Tests
         {
             //Arrange
             TestDataGenerator testDataGenerator = new TestDataGenerator();
-            EmployeeService employeeService = new EmployeeService(new EmployeeStorage(testDataGenerator.GenerateListOfEmployees(10)));
+            var employeesList = testDataGenerator.GenerateListOfEmployees(10);
+            var employeeService = new EmployeeService(new EmployeeStorage(employeesList));
+            
             Employee newEmployee = new Employee
             {
                 FirstName = "Александр",
