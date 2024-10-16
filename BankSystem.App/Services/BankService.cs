@@ -20,11 +20,6 @@ namespace BankSystem.App.Services
 
         public void AddBonus(Person person)
         {
-            if (person is Client client)
-            {
-                client.AccountBalance += client.AccountBalance * 0.03;
-            }
-
             if (person is Employee employee)
             {
                 employee.Salary += employee.Salary * 0.1;

@@ -4,11 +4,10 @@ namespace BankSystem.Domain.Models
 {
     public class Employee : Person
     {
-        public Guid Id { get; set; }
         public string Position { get; set; }
         public string Department { get; set; }
-        public double Salary { get; set; } = 0;
-        public string Contract { get; set; }= "Контракт сотрудника по умолчанию";
+        public double Salary { get; set; }
+        public string Contract { get; set; }
         public int Age { get; set; }
 
 
@@ -24,14 +23,12 @@ namespace BankSystem.Domain.Models
             if (obj is null || !(obj is Employee))
                 return false;
             var employee = (Employee) obj;
-            return this.PhoneNumber == employee.PhoneNumber && this.FirstName == employee.FirstName
-                && this.LastName == employee.LastName && this.Passport == employee.Passport;
+            return Id == employee.Id;
         }
 
         public override int GetHashCode()
         {
-            return PhoneNumber.GetHashCode() + FirstName.GetHashCode() + LastName.GetHashCode() + 
-                Passport.GetHashCode();
+            return Id.GetHashCode();
         }
     }
 }

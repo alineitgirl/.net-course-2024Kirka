@@ -3,99 +3,109 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Linq.Expressions;
 using BankSystem.App.Interfaces;
 using BankSystem.Domain.Models;
+using BankSystem.Data.DbContext;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace BankSystem.Data.Storages
 {
     public class ClientStorage : IClientStorage
     {
-        private Dictionary<Client, List<Account>> _dictionaryOfClients;
+        private readonly  BankSystemDbContext _dbContext;
 
-        public ClientStorage(Dictionary<Client, List<Account>> clients)
+        public ClientStorage(BankSystemDbContext dbContext)
         {
-            _dictionaryOfClients = clients;
+            _dbContext = dbContext;
         }
         
-        public IEnumerable<KeyValuePair<Client, List<Account>>> Get(Func<KeyValuePair<Client, List<Account>>, bool> filter = null)
+        public Client? GetById(Guid id)
         {
-            if (filter is null)
-            {
-                return _dictionaryOfClients;
-            }
-            var selectedClients = _dictionaryOfClients.Where(filter);
-            return selectedClients;
+            return _dbContext.Clients.AsNoTracking()
+                .FirstOrDefault(c => c.Id == id);
+        }
+        public IEnumerable<Client> GetByFilter(
+            Expression<Func<Client, bool>> filter = null, Func<Client, object> orderBy =  null, 
+            Func<Client, object> groupBy = null, int pageNumber = 1, int pageSize = 1)
+        {
+            var query = _dbContext.Clients.AsQueryable()
+                .Where(filter).OrderBy(orderBy).GroupBy(groupBy);
+
+            return query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .SelectMany(g => g);
         }
 
-
-        public void Add(KeyValuePair<Client, List<Account>> client)
+        public void Add(Client client)
         {
-            if (!(_dictionaryOfClients.Contains(client)))
-            {
-                _dictionaryOfClients.Add(client.Key, client.Value);
-            }
-            AddDefaultUsdAccountToClient(client.Value);
-        }
-        
-        public void Update(KeyValuePair<Client, List<Account>> oldClient, KeyValuePair<Client, List<Account>> newClient)
-        {
-            if (!(_dictionaryOfClients.Contains(oldClient)))
-            {
-                Add(oldClient);
-                return;
-            }
-
-            var searchedClient = _dictionaryOfClients.FirstOrDefault(cl => 
-                cl.Key.Equals(oldClient.Key));
-                searchedClient.Key.FirstName= newClient.Key.FirstName;
-                searchedClient.Key.LastName = newClient.Key.LastName;
-                searchedClient.Key.DateOfBirth = newClient.Key.DateOfBirth;
-                searchedClient.Key.Adress = newClient.Key.Adress;
-                searchedClient.Key.Passport = newClient.Key.Passport;
-                searchedClient.Key.PhoneNumber = newClient.Key.PhoneNumber;
-                searchedClient.Key.Id= newClient.Key.Id;
-                searchedClient.Key.AccountBalance = newClient.Key.AccountBalance;
-                searchedClient.Key.Age = newClient.Key.Age;
+            _dbContext.Clients.Add(client);
+            _dbContext.SaveChanges();
+            AddDefaultUsdAccountToClient(client.Id);
         }
         
-        public void Delete(KeyValuePair<Client, List<Account>> client)
+        public void Update(Guid id, string firstName, string lastName, string phoneNumber, 
+            string passport, DateTime birthDate, string adress, int age)
         {
-            if ((_dictionaryOfClients.Contains(client)))
+            _dbContext.Clients
+                .Where(c => c.Id == id)
+                .ExecuteUpdate(s => s
+                    .SetProperty(s => s.FirstName, firstName)
+                    .SetProperty(s => s.LastName, lastName)
+                    .SetProperty(s => s.DateOfBirth, birthDate)
+                    .SetProperty(s => s.PhoneNumber, phoneNumber)
+                    .SetProperty(s => s.Passport, passport)
+                    .SetProperty(s => s.Adress, adress)
+                    .SetProperty(s => s.Age, age));
+        }
+        
+        public void Delete(Guid id)
+        {
+            _dbContext.Clients
+                .Where(c => c.Id == id)
+                .ExecuteDelete();
+            _dbContext.SaveChanges();
+        }
+
+
+        public void AddAccount(Guid id, Account account)
+        {
+            account.ClientId = id;
+           _dbContext.Accounts
+               .Add(new Account
+               {
+                   Amount = account.Amount,
+                   CurrencyName = account.CurrencyName,
+                   ClientId = id
+               });
+        }
+
+        private void AddDefaultUsdAccountToClient(Guid id)
+        {
+            _dbContext.Accounts.Add(new Account
             {
-                _dictionaryOfClients.Remove(client.Key);
-            }
+                ClientId = id,
+                CurrencyName = "USD"
+            });
+            _dbContext.SaveChanges();
         }
 
-
-        public void AddAccount(KeyValuePair<Client, List<Account>> client, Account account)
+        public void UpdateAccount(Guid id, Account oldAccount, Account newAccount)
         {
-            if (_dictionaryOfClients.TryGetValue(client.Key, out var accounts))
-            {
-                accounts.Add(account);
-            }
+            _dbContext.Accounts
+                .Where(a => a.ClientId == id && a.Id == oldAccount.Id)
+                .ExecuteUpdate(a => a
+                    .SetProperty(x => x.Amount, newAccount.Amount)
+                    .SetProperty(x => x.CurrencyName, newAccount.CurrencyName));
         }
 
-        private void AddDefaultUsdAccountToClient(List<Account> accounts)
+        public void DeleteAccount(Guid id)
         {
-            accounts.Add(new Account {Amount = 0, Currency = "USD"});
-        }
-
-        public void UpdateAccount(KeyValuePair<Client, List<Account>> client, Account oldAccount,
-            Account updatedAccount)
-        {
-            if (!(client.Value.Contains(oldAccount)))
-            {
-                AddAccount(client, updatedAccount);
-                return;
-            }
-            var searchedAccount = client.Value.FirstOrDefault(acc => acc.Equals(oldAccount));
-            searchedAccount.Amount = updatedAccount.Amount;
-            searchedAccount.Currency = updatedAccount.Currency;
-        }
-
-        public void DeleteAccount(KeyValuePair<Client, List<Account>> client, Account accountToDelete)
-        {
-            client.Value.RemoveAll(cl => cl.Equals(accountToDelete));
+           _dbContext.Accounts
+               .Where(a => a.Id == id)
+               .ExecuteDelete();
         }
     }
 }

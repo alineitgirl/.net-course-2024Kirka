@@ -23,7 +23,6 @@ namespace BankSystem.App.Tests
                 Id = searchedClient.Id,
                 FirstName =  searchedClient.FirstName,
                 LastName =  searchedClient.LastName,
-                AccountBalance = searchedClient.AccountBalance,
                 Adress = searchedClient.Adress,
                 Age = searchedClient.Age,
                 DateOfBirth = searchedClient.DateOfBirth,

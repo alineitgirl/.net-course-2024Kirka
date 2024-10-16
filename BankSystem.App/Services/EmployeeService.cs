@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using BankSystem.App.Exceptions;
 using BankSystem.App.Interfaces;
 using BankSystem.Domain.Models;
@@ -32,15 +33,19 @@ namespace BankSystem.App.Services
 
         }
         
-        public void UpdateEmployee (Employee oldEmployee, Employee employeeToUpdate)
-        {
-            _employeeStorage.Update(oldEmployee, employeeToUpdate);
-        }
+        public void UpdateEmployee(Guid id, string firstName, string lastName, DateTime birthDate,
+            string phoneNumber, string passport, string address, int age, string position, 
+            double salary, string department)
+        => _employeeStorage.Update(id, firstName, lastName, birthDate, phoneNumber, 
+            passport, address, age, position, salary, department);
         
-
-        public List<Employee>? GetEmployeesByFilter(Func<Employee, bool> filter = null)
-        {
-            return _employeeStorage.Get(filter).ToList();
-        }
+        public List<Employee> GetByFilter(
+            Expression<Func<Employee, bool>> filter = null, Func<Employee, object> orderBy = null, 
+            Func<Employee, object> groupBy =  null, int pageNumber = 1, int pageSize = 1)
+        => _employeeStorage.GetByFilter(filter, orderBy, groupBy, pageNumber, pageSize).ToList();
+        
+        public Employee? GetById(Guid id) => _employeeStorage.GetById(id);
+        
+        public void DeleteEmployee(Guid id) => _employeeStorage.Delete(id);
     }
 }
