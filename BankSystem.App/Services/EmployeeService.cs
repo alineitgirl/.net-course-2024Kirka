@@ -33,11 +33,8 @@ namespace BankSystem.App.Services
 
         }
         
-        public void UpdateEmployee(Guid id, string firstName, string lastName, DateTime birthDate,
-            string phoneNumber, string passport, string address, int age, string position, 
-            double salary, string department)
-        => _employeeStorage.Update(id, firstName, lastName, birthDate, phoneNumber, 
-            passport, address, age, position, salary, department);
+        public void UpdateEmployee(Guid id, Employee employee)
+        => _employeeStorage.Update(id, employee);
         
         public List<Employee> GetByFilter(
             Expression<Func<Employee, bool>> filter = null, Func<Employee, object> orderBy = null, 

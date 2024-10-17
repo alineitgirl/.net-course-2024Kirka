@@ -43,23 +43,21 @@ namespace BankSystem.Data.Storages
             _dbContext.SaveChanges();
         }
         
-        public void Update(Guid id, string firstName, string lastName, DateTime birthDate,
-            string phoneNumber, string passport, string address, int age, string position, 
-            double salary, string department)
+        public void Update(Guid id, Employee employee)
         {
             _dbContext.Employees
                 .Where(c => c.Id == id)
                 .ExecuteUpdate(s => s
-                    .SetProperty(s => s.FirstName, firstName)
-                    .SetProperty(s => s.LastName, lastName)
-                    .SetProperty(s => s.DateOfBirth, birthDate)
-                    .SetProperty(s => s.PhoneNumber, phoneNumber)
-                    .SetProperty(s => s.Passport, passport)
-                    .SetProperty(s => s.Adress, address)
-                    .SetProperty(s => s.Age, age)
-                    .SetProperty(s => s.Position, position)
-                    .SetProperty(s => s.Salary, salary)
-                    .SetProperty(s => s.Department, department)
+                    .SetProperty(s => s.FirstName, employee.FirstName)
+                    .SetProperty(s => s.LastName, employee.LastName)
+                    .SetProperty(s => s.DateOfBirth, employee.DateOfBirth)
+                    .SetProperty(s => s.PhoneNumber, employee.PhoneNumber)
+                    .SetProperty(s => s.Passport, employee.Passport)
+                    .SetProperty(s => s.Adress, employee.Adress)
+                    .SetProperty(s => s.Age, employee.Age)
+                    .SetProperty(s => s.Position, employee.Position)
+                    .SetProperty(s => s.Salary, employee.Salary)
+                    .SetProperty(s => s.Department, employee.Department)
                 );
             _dbContext.SaveChanges();
         }

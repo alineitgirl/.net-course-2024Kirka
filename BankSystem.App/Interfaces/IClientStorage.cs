@@ -12,8 +12,7 @@ namespace BankSystem.App.Interfaces
         void UpdateAccount(Guid id, Account oldAccount, Account newAccount);
         void DeleteAccount(Guid id);
 
-        void Update(Guid id, string firstName, string lastName, string phoneNumber,
-            string passport, DateTime birthDate, string adress, int age);
+        void Update(Guid id, Client client);
 
     }
 }

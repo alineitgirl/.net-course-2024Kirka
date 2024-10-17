@@ -13,8 +13,7 @@ public class BankSystemDbContext : Microsoft.EntityFrameworkCore.DbContext
 
     public BankSystemDbContext()
     {
-        Database.EnsureDeleted();
-        Database.EnsureCreated();
+        
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

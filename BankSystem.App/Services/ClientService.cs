@@ -34,9 +34,8 @@ namespace BankSystem.App.Services
             _clientStorage.Add(newClient);
         }
 
-        public void UpdateClient(Guid id, string firstName, string lastName, string phoneNumber, 
-            string passport, DateTime birthDate, string adress, int age)
-        => _clientStorage.Update(id, firstName, lastName, phoneNumber, passport, birthDate, adress, age);
+        public void UpdateClient(Guid id, Client client)
+        => _clientStorage.Update(id, client);
         
         public void DeleteClient(Guid id) => _clientStorage.Delete(id);
         public Client GetById(Guid id) => _clientStorage.GetById(id);

@@ -191,11 +191,7 @@ namespace BankSystem.App.Services.Tests
             var employeeByName = employeeService.GetByFilter(empl =>
                 empl.FirstName == employeeToSearch.FirstName && empl.LastName == employeeToSearch.LastName,
                 c => c.Age, g => g.Salary, 1, 1).ToList();
-            employeeService.UpdateEmployee(newEmployee.Id, employeeToUpdate.FirstName, employeeToUpdate.LastName,
-                employeeToUpdate.DateOfBirth, employeeToUpdate.PhoneNumber, employeeToUpdate.Passport,
-                employeeToUpdate.Adress, employeeToUpdate.Age, employeeToUpdate.Position,
-                employeeToUpdate.Salary, employeeToUpdate.Department);
-
+            employeeService.UpdateEmployee(newEmployee.Id, employeeToUpdate);
 
             //Assert
             Assert.Single(employeeByName);

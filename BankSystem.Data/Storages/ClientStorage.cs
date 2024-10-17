@@ -46,19 +46,23 @@ namespace BankSystem.Data.Storages
             AddDefaultUsdAccountToClient(client.Id);
         }
         
-        public void Update(Guid id, string firstName, string lastName, string phoneNumber, 
-            string passport, DateTime birthDate, string adress, int age)
+        public void Update(Guid id, Client client)
         {
-            _dbContext.Clients
-                .Where(c => c.Id == id)
-                .ExecuteUpdate(s => s
-                    .SetProperty(s => s.FirstName, firstName)
-                    .SetProperty(s => s.LastName, lastName)
-                    .SetProperty(s => s.DateOfBirth, birthDate)
-                    .SetProperty(s => s.PhoneNumber, phoneNumber)
-                    .SetProperty(s => s.Passport, passport)
-                    .SetProperty(s => s.Adress, adress)
-                    .SetProperty(s => s.Age, age));
+            if (_dbContext.Clients.Any(c => c.Id == id))
+            {
+                _dbContext.Clients
+                    .Where(c => c.Id == id)
+                    .ExecuteUpdate(s => s
+                        .SetProperty(s => s.FirstName, client.FirstName)
+                        .SetProperty(s => s.LastName, client.LastName)
+                        .SetProperty(s => s.DateOfBirth, client.DateOfBirth)
+                        .SetProperty(s => s.PhoneNumber, client.PhoneNumber)
+                        .SetProperty(s => s.Passport, client.Passport)
+                        .SetProperty(s => s.Adress, client.Adress)
+                        .SetProperty(s => s.Age, client.Age));
+            }
+           
+                
         }
         
         public void Delete(Guid id)
