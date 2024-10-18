@@ -4,12 +4,15 @@ namespace BankSystem.Domain.Models
 {
     public class Person
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; } 
+        public Guid Id { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; } 
         public DateTime DateOfBirth { get; set; } = DateTime.Now;
-        public string Adress { get; set; } 
-        public string Passport { get; set; }
-        public string PhoneNumber { get; set; }
+        public string? Adress { get; set; } 
+        public string? Passport { get; set; }
+        public string? PhoneNumber { get; set; }
+        
+        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
         
         public override string ToString() =>  $"Имя: {FirstName}\n" +
                                               $"Фамилия: {LastName}\n" +
@@ -22,13 +25,12 @@ namespace BankSystem.Domain.Models
             if (obj is null || !(obj is Person))
                 return false;
             var person = (Person) obj;
-            return this.PhoneNumber == person.PhoneNumber && this.FirstName == person.FirstName
-                                                          && this.LastName == person.LastName && this.Passport == person.Passport;
+            return Id == person.Id;
         }
 
         public override int GetHashCode()
         {
-            return PhoneNumber.GetHashCode() + FirstName.GetHashCode() + LastName.GetHashCode() + Passport.GetHashCode();
+            return Id.GetHashCode();
         }
     }
 }

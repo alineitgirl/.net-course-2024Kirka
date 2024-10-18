@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 using BankSystem.App.Services;
+using BankSystem.Data.DbContext;
 using BankSystem.Data.Storages;
 using BankSystem.Domain.Models;
 
@@ -14,14 +15,18 @@ namespace BankSystem.Data.Tests
         public void TestClientsStorage()
         {
             //Arrange
-            TestDataGenerator testDataGenerator = new TestDataGenerator();
-            ClientStorage clientStorage = new ClientStorage(testDataGenerator.GenerateClientsDictionary(10)); 
+            var testDataGenerator = new TestDataGenerator();
+            var listOfClients = testDataGenerator.GenerateListOfClients(10);
+            var clientStorage = new ClientStorage(new BankSystemDbContext());
+            foreach (var client in listOfClients)
+            {
+                clientStorage.Add(client);
+            }
             Client newClient = new Client()
             {
                 FirstName = "Ivan",
                 LastName = "Ivanov",
-                DateOfBirth = DateTime.Now,
-                AccountBalance = 10000,
+                DateOfBirth = DateTime.Now.ToUniversalTime(),
                 Adress = "city1",
                 Passport = "122ffj",
                 Age = 18,
@@ -30,14 +35,13 @@ namespace BankSystem.Data.Tests
             };
             List<Account> accounts = new List<Account>()
             {
-                new Account {Amount = 1234.5, Currency = "USD"},
+                new Account {Amount = 1234.5, CurrencyName = "USD"}
             };
             Client oldClient = new Client()
             {
                 FirstName = "Petr",
                 LastName = "Petrov",
-                DateOfBirth = DateTime.Now,
-                AccountBalance = 10000,
+                DateOfBirth = DateTime.Now.ToUniversalTime(),
                 Adress = "city1",
                 Passport = "12jjf2",
                 Age = 87,
@@ -46,65 +50,81 @@ namespace BankSystem.Data.Tests
             };
 
             //Act
-            clientStorage.Add(new KeyValuePair<Client, List<Account>>(newClient, accounts));
-            clientStorage.Add(new KeyValuePair<Client, List<Account>>(oldClient, accounts));
-            clientStorage.Update(new KeyValuePair<Client, List<Account>>(oldClient, accounts), 
-                new KeyValuePair<Client, List<Account>>(newClient, accounts));
-            clientStorage.Delete(new KeyValuePair<Client, List<Account>>(newClient, accounts));
-            clientStorage.AddAccount(new KeyValuePair<Client, List<Account>>(newClient, accounts), 
-                new Account { Amount =  123.45, Currency = "EUR"});
-            clientStorage.UpdateAccount(new KeyValuePair<Client, List<Account>>(newClient, accounts),
-            new Account {Amount = 123.45, Currency = "EUR"}, new Account {Amount = 134, Currency = "RUP"});
-            clientStorage.DeleteAccount(new KeyValuePair<Client, List<Account>>(newClient, accounts), 
-                new Account {Amount = 1234.5, Currency = "USD"});
+             clientStorage.Add(newClient);
+             clientStorage.Add(oldClient);
+             clientStorage.Update(newClient.Id, oldClient);
+            clientStorage.Delete(oldClient.Id);
+            clientStorage.AddAccount(newClient.Id, accounts[0]);
+            clientStorage.UpdateAccount(newClient.Id, accounts[0], new Account
+            {
+                 Amount = 123.45, 
+                 CurrencyName = "EUR"
+            });
 
 
             //Assert
-            Assert.Empty(clientStorage.Get(cl => cl.Key.Age == 18));
-            Assert.False(clientStorage.Get(cl => cl.Value.Contains(new Account
-            {
-                Amount = 1234.5, Currency = "USD"
-            })).Any());
+            Assert.Empty(clientStorage.
+                GetByFilter(cl => cl.Age == 18,
+                    c => c.FirstName, c => c.Passport, 1, 1));
+            Assert.IsType<List<Client>>(clientStorage.GetByFilter(cl => cl.Accounts.Contains(new Account {
+               Amount = 1234.5, 
+               CurrencyName = "USD"
+            }), c => c.PhoneNumber, c => c.FirstName, 1, 1).ToList());
         }
 
         [Fact]
         public void TestEmployeeStorage()
         {
             //Arrange
-            TestDataGenerator testDataGenerator = new TestDataGenerator();
-            EmployeeStorage employeeStorage = new EmployeeStorage(testDataGenerator.GenerateListOfEmployees(10));
-            Employee newEmployee = new Employee()
+            var testDataGenerator = new TestDataGenerator();
+            var listOfEmployees = testDataGenerator.GenerateListOfEmployees(10);
+            var employeeStorage = new EmployeeStorage(new BankSystemDbContext());
+            foreach (var employee in listOfEmployees)
+            {
+                employeeStorage.Add(employee);
+            }   
+            var newEmployee = new Employee()
             {
                 FirstName = "Natalya",
                 LastName = "Ivanova",
-                DateOfBirth = DateTime.Now,
+                DateOfBirth = DateTime.Now.ToUniversalTime(),
                 Adress = "New-York",
                 Passport = "123abc",
-                PhoneNumber = "70000",
+                PhoneNumber = "345189",
                 Id = Guid.NewGuid(),
-                Age = 18
+                Age = 18,
+                Contract = "12345",
+                Department = "HR-отдел",
+                Position = "HR-менеджер",
+                Salary = 1234.5,
             };
-            Employee oldEmployee = new Employee()
+            var oldEmployee = new Employee()
             {
                 FirstName = "Oleg",
                 LastName = "Scvortsov",
-                DateOfBirth = DateTime.Now,
+                DateOfBirth = DateTime.Now.ToUniversalTime(),
                 Adress = "Tiraspol",
-                Passport = "123abc",
-                PhoneNumber = "23456",
+                Passport = "123abcd",
+                PhoneNumber = "234567",
                 Id = Guid.NewGuid(),
-                Age = 74
+                Age = 74,
+                Contract = "12345",
+                Department = "HR-отдел",
+                Position = "HR-менеджер",
+                Salary = 12346.5,
             };
             
             //Act
             employeeStorage.Add(oldEmployee);
-            employeeStorage.Update(oldEmployee, newEmployee);
-            employeeStorage.Delete(newEmployee);
-            var employeesLivingInNewYork = employeeStorage.Get(empl =>
-                empl.Adress == "Tiraspol");
+            employeeStorage.Add(newEmployee);
+            employeeStorage.Update(oldEmployee.Id, newEmployee);
+            employeeStorage.Delete(newEmployee.Id);
+            var employeesLivingInNewYork = employeeStorage.GetByFilter(empl =>
+                empl.Adress == "Tiraspol", c => c.FirstName, c => c.PhoneNumber, 1, 1).ToList();
 
             //Assert
-            Assert.Empty(employeeStorage.Get(empl => empl.Equals(oldEmployee)));
+            Assert.Empty(employeeStorage.GetByFilter(empl => empl.Equals(newEmployee),
+                c => c.FirstName, c => c.PhoneNumber, 1, 1));
             Assert.Empty(employeesLivingInNewYork);
         }
     }

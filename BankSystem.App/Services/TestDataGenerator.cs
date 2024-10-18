@@ -28,13 +28,13 @@ namespace BankSystem.App.Services
             {
                 clients.Add(new Client
                 {
+                    Id = Guid.NewGuid(),
                     FirstName = "firstName_" + i, 
                     LastName = "lastName_" + i, 
-                    DateOfBirth = DateTime.Today, 
+                    DateOfBirth = DateTime.Today.ToUniversalTime(), 
                     Adress =  i + "adress", 
                     Passport = "passport_" + i,
                     PhoneNumber = _generatePhoneNumber(i),
-                    AccountBalance =  (rand.Next(0, 1899305)) / 3.0,
                     Age = rand.Next(18, 88)
                 }
                 );
@@ -86,7 +86,7 @@ namespace BankSystem.App.Services
                 {
                     FirstName = "firstName_" + i, 
                     LastName = "lastName_" + i, 
-                    DateOfBirth = DateTime.Today, 
+                    DateOfBirth = DateTime.Today.ToUniversalTime(), 
                     Adress = i + "adress", 
                     Passport = "passport_" + i,
                     PhoneNumber = _generatePhoneNumber(i),
@@ -110,7 +110,7 @@ namespace BankSystem.App.Services
             {
                 accounts.Add(new Account
                 {
-                    Currency = currencies[rand.Next(currencies.Count)],  
+                    CurrencyName = currencies[rand.Next(currencies.Count)],  
                     Amount = numberOfClients * 9 + 12345
                 });
             }
