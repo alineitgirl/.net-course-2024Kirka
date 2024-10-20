@@ -33,7 +33,7 @@ namespace BankSystem.App.Services
                     LastName = "lastName_" + i, 
                     DateOfBirth = DateTime.Today.ToUniversalTime(), 
                     Adress =  i + "adress", 
-                    Passport = "passport_" + i,
+                    Passport = "passport_" + $"{i+20}",
                     PhoneNumber = _generatePhoneNumber(i),
                     Age = rand.Next(18, 88)
                 }

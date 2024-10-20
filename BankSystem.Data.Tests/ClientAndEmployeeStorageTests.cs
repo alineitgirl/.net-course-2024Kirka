@@ -28,10 +28,10 @@ namespace BankSystem.Data.Tests
                 LastName = "Ivanov",
                 DateOfBirth = DateTime.Now.ToUniversalTime(),
                 Adress = "city1",
-                Passport = "122ffj",
+                Passport = "1289ffj",
                 Age = 18,
                 Id = Guid.NewGuid(),
-                PhoneNumber = "70001"
+                PhoneNumber = "5555643"
             };
             List<Account> accounts = new List<Account>()
             {
@@ -43,16 +43,15 @@ namespace BankSystem.Data.Tests
                 LastName = "Petrov",
                 DateOfBirth = DateTime.Now.ToUniversalTime(),
                 Adress = "city1",
-                Passport = "12jjf2",
+                Passport = "12hfyjui",
                 Age = 87,
                 Id = Guid.NewGuid(),
-                PhoneNumber = "70002"
+                PhoneNumber = "12345678"
             };
 
             //Act
-             clientStorage.Add(newClient);
-             clientStorage.Add(oldClient);
-             clientStorage.Update(newClient.Id, oldClient);
+            clientStorage.Add(newClient);
+            clientStorage.Update(newClient.Id, oldClient);
             clientStorage.Delete(oldClient.Id);
             clientStorage.AddAccount(newClient.Id, accounts[0]);
             clientStorage.UpdateAccount(newClient.Id, accounts[0], new Account
