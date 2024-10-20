@@ -12,8 +12,7 @@ public class ExportTest
     private readonly ITestOutputHelper _testOutputHelper;
     
     public ExportTest(ITestOutputHelper testOutputHelper)
-    {
-        _testOutputHelper = testOutputHelper;
+    { _testOutputHelper = testOutputHelper;
     }
     [Fact]
     public void WriteDataToFile_Positiv_Test()
@@ -44,7 +43,12 @@ public class ExportTest
         
         
         //Act
-        exportService.ImportClientFromFile(Path.Combine(pathToDirectory, fileName));
+        var newClients = exportService.ImportClientFromFile(Path.Combine(pathToDirectory, fileName)).ToList();
+        var clientStorage = new ClientStorage(new BankSystemDbContext());
+        foreach (var client in newClients)
+        {
+            clientStorage.Add(client);
+        }
         
         //Assert
         Assert.Equal(8, File.ReadAllLines(Path.Combine(pathToDirectory, fileName)).Length -1);

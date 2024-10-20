@@ -64,10 +64,10 @@ public class ExportService
         }
     }
 
-    public void ImportClientFromFile(string filePath)
+    public ICollection<Client> ImportClientFromFile(string filePath)
     {
         var clients = new List<Client>();
-        
+
         if (!File.Exists(filePath))
         {
             throw new FileNotFoundException("File not found", filePath);
@@ -88,29 +88,21 @@ public class ExportService
                             Id = csv.GetField<Guid>("Id"),
                             FirstName = csv.GetField<string>("FirstName"),
                             LastName = csv.GetField<string>("LastName"),
-                            DateOfBirth = DateTime.Parse(csv.GetField("DateOfBirth")),
+                            DateOfBirth = DateTime.Parse(csv.GetField("DateOfBirth")).ToUniversalTime(),
                             Adress = csv.GetField("Adress"),
                             Passport = csv.GetField("Passport"),
                             PhoneNumber = csv.GetField("PhoneNumber"),
-                            CreatedOn = DateTime.Parse(csv.GetField("CreatedOn")),
+                            CreatedOn = DateTime.Parse(csv.GetField("CreatedOn")).ToUniversalTime(),
                             Age = int.Parse(csv.GetField("Age"))
                         };
-                        
+
                         clients.Add(client);
-                    } 
+                    }
                 }
             }
         }
-        
-        var clientStorage = new ClientStorage(new BankSystemDbContext());
 
-        foreach (var client in clients)
-        {
-            client.DateOfBirth = client.DateOfBirth.ToUniversalTime();
-            client.CreatedOn = client.CreatedOn.ToUniversalTime();
-            clientStorage.Add(client);
-        }
+        return clients;
+
     }
-    
-    
 }
