@@ -1,72 +1,32 @@
 ﻿using System.Globalization;
-using BankSystem.Data.DbContext;
-using BankSystem.Data.Storages;
-using BankSystem.Domain.Models;
 using CsvHelper;
-using OfficeOpenXml;
+using Newtonsoft.Json;
 
 namespace ExportTool;
 
 public class ExportService
 {
-    private string _pathToDirectory;
-    private string _csvFileName;
-
-    public ExportService(string pathToDirectory, string csvFileName)
+    public void ExportDataToCsvFile<T>(ICollection<T> data, string filepath)
     {
-        _pathToDirectory = pathToDirectory;
-        _csvFileName = csvFileName;
-    }
-
-    public void ExportClientToCsvFile(ICollection<Client> clients)
-    {
-        var dirInfo = new DirectoryInfo(_pathToDirectory);
-        if (!dirInfo.Exists)
+        using (var fileStream = new FileStream(filepath, FileMode.OpenOrCreate))
         {
-            dirInfo.Create();
-        }
-        var csvFilePath = Path.Combine(_pathToDirectory, _csvFileName);
-        using (var fileStream = new FileStream(csvFilePath, FileMode.OpenOrCreate))
-        {
+            if (!File.Exists(filepath))
+            {
+                File.Create(filepath);
+            }
             using (StreamWriter streamWriter = new StreamWriter(fileStream))
             {
                 using (var writer = new CsvWriter(streamWriter, CultureInfo.InvariantCulture))
                 {
-                    writer.WriteField(nameof(Client.Id));
-                    writer.WriteField(nameof(Client.FirstName));
-                    writer.WriteField(nameof(Client.LastName));
-                    writer.WriteField(nameof(Client.DateOfBirth));
-                    writer.WriteField(nameof(Client.Adress));
-                    writer.WriteField(nameof(Client.Passport));
-                    writer.WriteField(nameof(Client.PhoneNumber));
-                    writer.WriteField(nameof(Client.CreatedOn));
-                    writer.WriteField(nameof(Client.Age));
-                    
-                    writer.NextRecord();
-
-                    foreach (var client in clients)
-                    {
-                        writer.WriteField(client.Id);
-                        writer.WriteField(client.FirstName);
-                        writer.WriteField(client.LastName);
-                        writer.WriteField(client.DateOfBirth.ToString("yyyy-MM-dd"));
-                        writer.WriteField(client.Adress);
-                        writer.WriteField(client.Passport);
-                        writer.WriteField(client.PhoneNumber);
-                        writer.WriteField(client.CreatedOn.ToString("yyyy-MM-dd"));
-                        writer.WriteField(client.Age);
-                        writer.NextRecord();
-                    }
-                    
+                    writer.WriteRecords(data);
                     writer.Flush();
                 }
             }
         }
     }
 
-    public ICollection<Client> ImportClientFromFile(string filePath)
+    public ICollection<T> ImportClientFromCsvFile<T>(string filePath)
     {
-        var clients = new List<Client>();
 
         if (!File.Exists(filePath))
         {
@@ -79,30 +39,44 @@ public class ExportService
             {
                 using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
                 {
-                    csv.Read();
-                    csv.ReadHeader();
-                    while (csv.Read())
-                    {
-                        var client = new Client
-                        {
-                            Id = csv.GetField<Guid>("Id"),
-                            FirstName = csv.GetField<string>("FirstName"),
-                            LastName = csv.GetField<string>("LastName"),
-                            DateOfBirth = DateTime.Parse(csv.GetField("DateOfBirth")).ToUniversalTime(),
-                            Adress = csv.GetField("Adress"),
-                            Passport = csv.GetField("Passport"),
-                            PhoneNumber = csv.GetField("PhoneNumber"),
-                            CreatedOn = DateTime.Parse(csv.GetField("CreatedOn")).ToUniversalTime(),
-                            Age = int.Parse(csv.GetField("Age"))
-                        };
-
-                        clients.Add(client);
-                    }
+                    var data = csv.GetRecords<T>().ToList();
+                    return data;
                 }
             }
         }
-
-        return clients;
-
     }
+    
+    public void ExportDataToJsonFile<T>(T data, string filepath)
+    {
+        using (var fileStream = new FileStream(filepath, FileMode.OpenOrCreate))
+        {
+            if (!File.Exists(filepath))
+            {
+                File.Create(filepath);
+            }
+            using (var textWriter = new StreamWriter(fileStream))
+            {
+                var serializer = new JsonSerializer();
+                serializer.Serialize(textWriter, data);
+            }
+        }
+    }
+
+    public ICollection<T> ImportDataFromJsonFile<T>(string filepath)
+    {
+        if (!File.Exists(filepath))
+        {
+            throw new FileNotFoundException("File not found", filepath);
+        }
+        using (var fileStream = new FileStream(filepath, FileMode.Open))
+        {
+            using (var textReader = new StreamReader(fileStream))
+            {
+                var info = textReader.ReadToEnd();
+                return JsonConvert.DeserializeObject<ICollection<T>>(info);
+            }
+        }
+        
+    }
+
 }
