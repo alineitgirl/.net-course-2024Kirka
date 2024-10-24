@@ -6,13 +6,13 @@ namespace ExportTool;
 
 public class ExportService
 {
-    public void ExportDataToCsvFile<T>(ICollection<T> data, string filepath)
+    public void ExportDataToCsvFile<T>(ICollection<T> data, string filePath)
     {
-        using (var fileStream = new FileStream(filepath, FileMode.OpenOrCreate))
+        using (var fileStream = new FileStream(filePath, FileMode.OpenOrCreate))
         {
-            if (!File.Exists(filepath))
+            if (!File.Exists(filePath))
             {
-                File.Create(filepath);
+                File.Create(filePath);
             }
             using (StreamWriter streamWriter = new StreamWriter(fileStream))
             {
@@ -46,13 +46,13 @@ public class ExportService
         }
     }
     
-    public void ExportDataToJsonFile<T>(T data, string filepath)
+    public void ExportDataToJsonFile<T>(T data, string filePath)
     {
-        using (var fileStream = new FileStream(filepath, FileMode.OpenOrCreate))
+        using (var fileStream = new FileStream(filePath, FileMode.OpenOrCreate))
         {
-            if (!File.Exists(filepath))
+            if (!File.Exists(filePath))
             {
-                File.Create(filepath);
+                File.Create(filePath);
             }
             using (var textWriter = new StreamWriter(fileStream))
             {
@@ -62,13 +62,13 @@ public class ExportService
         }
     }
 
-    public ICollection<T> ImportDataFromJsonFile<T>(string filepath)
+    public ICollection<T> ImportDataFromJsonFile<T>(string filePath)
     {
-        if (!File.Exists(filepath))
+        if (!File.Exists(filePath))
         {
-            throw new FileNotFoundException("File not found", filepath);
+            throw new FileNotFoundException("File not found", filePath);
         }
-        using (var fileStream = new FileStream(filepath, FileMode.Open))
+        using (var fileStream = new FileStream(filePath, FileMode.Open))
         {
             using (var textReader = new StreamReader(fileStream))
             {
