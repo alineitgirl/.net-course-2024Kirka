@@ -1,0 +1,17 @@
+[
+  {
+    "Position": "техподдержка",
+    "Department": "Отдел продаж",
+    "Salary": 4209.0,
+    "Contract": "Контракт сотрудника по умолчанию",
+    "Age": 48,
+    "Id": "0192b595-1cb2-73c8-9675-707e2b57930b",
+    "FirstName": "firstName_0",
+    "LastName": "lastName_0",
+    "DateOfBirth": "2024-10-21T21:00:00Z",
+    "Adress": "0adress",
+    "Passport": "passport_0",
+    "PhoneNumber": "70000",
+    "CreatedOn": "2024-10-22T18:55:00.915939Z"
+  }
+]

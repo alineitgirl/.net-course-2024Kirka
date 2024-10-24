@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
 
 
 namespace BankSystem.Domain.Models
@@ -9,6 +10,7 @@ namespace BankSystem.Domain.Models
     public class Client : Person
     {
         public int Age { get; set; } 
+        [JsonIgnore]
         public ICollection<Account>? Accounts { get; set; }
 
         public override string ToString()

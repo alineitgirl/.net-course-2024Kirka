@@ -1,0 +1,29 @@
+[{"Position":"техподдержка","Department":"Отдел продаж","Salary":4209.0,"Contract":"Контракт сотрудника по умолчанию","Age":48,"Id":"0192b595-1cb2-73c8-9675-707e2b57930b","FirstName":"firstName_0","LastName":"lastName_0","DateOfBirth":"2024-10-21T21:00:00Z","Adress":"0adress","Passport":"passport_0","PhoneNumber":"70000","CreatedOn":"2024-10-22T18:55:00.915939Z"},{"Position":"backend-разработчик","Department":"Финансовый отдел","Salary":4840.0,"Contract":"Контракт сотрудника по умолчанию","Age":29,"Id":"0192b595-1e35-75b8-baca-32f3e4152703","FirstName":"firstName_1","LastName":"lastName_1","DateOfBirth":"2024-10-21T21:00:00Z","Adress":"1adress","Passport":"passport_1","PhoneNumber":"70007","CreatedOn":"2024-10-22T18:55:00.916089Z"},{"Position":"менеджер по продажам","Department":"Отдел продаж","Salary":4075.3333333333335,"Contract":"Контракт сотрудника по умолчанию","Age":59,"Id":"0192b595-1e37-7288-a3e3-b2b18461424d","FirstName":"firstName_3","LastName":"lastName_3","DateOfBirth":"2024-10-21T21:00:00Z","Adress":"3adress","Passport":"passport_3","PhoneNumber":"70021","CreatedOn":"2024-10-22T18:55:00.916092Z"},{"Position":"менеджер по продажам","Department":"IT-отдел","Salary":1783.0,"Contract":"Контракт сотрудника по умолчанию","Age":42,"Id":"0192b595-1e37-79b4-856b-e774494d9960","FirstName":"firstName_2","LastName":"lastName_2","DateOfBirth":"2024-10-21T21:00:00Z","Adress":"2adress","Passport":"passport_2","PhoneNumber":"70014","CreatedOn":"2024-10-22T18:55:00.916091Z"},{"Position":"менеджер по продажам","Department":"Отдел продаж","Salary":3096.3333333333335,"Contract":"Контракт сотрудника по умолчанию","Age":61,"Id":"0192b595-1e38-746f-b1a1-cb7e58ac3fcc","FirstName":"firstName_6","LastName":"lastName_6","DateOfBirth":"2024-10-21T21:00:00Z","Adress":"6adress","Passport":"passport_6","PhoneNumber":"70042","CreatedOn":"2024-10-22T18:55:00.916094Z"},{"Position":"mobile-разработчик","Department":"Финансовый отдел","Salary":6344.666666666667,"Contract":"Контракт сотрудника по умолчанию","Age":39,"Id":"0192b595-1e38-77a6-9115-8274d3218840","FirstName":"firstName_4","LastName":"lastName_4","DateOfBirth":"2024-10-21T21:00:00Z","Adress":"4adress","Passport":"passport_4","PhoneNumber":"70028","CreatedOn":"2024-10-22T18:55:00.916093Z"},{"Position":"fontend- разработчик","Department":"IT-отдел","Salary":4690.0,"Contract":"Контракт сотрудника по умолчанию","Age":44,"Id":"0192b595-1e38-7cd4-ae68-67caeabe759f","FirstName":"firstName_5","LastName":"lastName_5","DateOfBirth":"2024-10-21T21:00:00Z","Adress":"5adress","Passport":"passport_5","PhoneNumber":"70035","CreatedOn":"2024-10-22T18:55:00.916093Z"},{"Position":"техподдержка","Department":"Отдел продаж","Salary":3855.6666666666665,"Contract":"Контракт сотрудника по умолчанию","Age":73,"Id":"0192b595-1e39-76e0-b4bb-29851082f4df","FirstName":"firstName_7","LastName":"lastName_7","DateOfBirth":"2024-10-21T21:00:00Z","Adress":"7adress","Passport":"passport_7","PhoneNumber":"70049","CreatedOn":"2024-10-22T18:55:00.916094Z"},{"Position":"backend-разработчик","Department":"Финансовый отдел","Salary":2930.0,"Contract":"Контракт сотрудника по умолчанию","Age":74,"Id":"0192b595-1e3a-7dae-910d-4dbf0f52cefd","FirstName":"firstName_8","LastName":"lastName_8","DateOfBirth":"2024-10-21T21:00:00Z","Adress":"8adress","Passport":"passport_8","PhoneNumber":"70056","CreatedOn":"2024-10-22T18:55:00.916095Z"},{"Position":"менеджер по продажам","Department":"Финансовый отдел","Salary":2264.0,"Contract":"Контракт сотрудника по умолчанию","Age":27,"Id":"0192b595-1e3b-7dae-bd4b-f2a584888c4c","FirstName":"firstName_9","LastName":"lastName_9","DateOfBirth":"2024-10-21T21:00:00Z","Adress":"9adress","Passport":"passport_9","PhoneNumber":"70063","CreatedOn":"2024-10-22T18:55:00.916096Z"}]�инансовый отдел",
+    "Salary": 2930.0,
+    "Contract": "Контракт сотрудника по умолчанию",
+    "Age": 74,
+    "Id": "0192b595-1e3a-7dae-910d-4dbf0f52cefd",
+    "FirstName": "firstName_8",
+    "LastName": "lastName_8",
+    "DateOfBirth": "2024-10-21T21:00:00Z",
+    "Adress": "8adress",
+    "Passport": "passport_8",
+    "PhoneNumber": "70056",
+    "CreatedOn": "2024-10-22T18:55:00.916095Z"
+  },
+  {
+    "Position": "менеджер по продажам",
+    "Department": "Финансовый отдел",
+    "Salary": 2264.0,
+    "Contract": "Контракт сотрудника по умолчанию",
+    "Age": 27,
+    "Id": "0192b595-1e3b-7dae-bd4b-f2a584888c4c",
+    "FirstName": "firstName_9",
+    "LastName": "lastName_9",
+    "DateOfBirth": "2024-10-21T21:00:00Z",
+    "Adress": "9adress",
+    "Passport": "passport_9",
+    "PhoneNumber": "70063",
+    "CreatedOn": "2024-10-22T18:55:00.916096Z"
+  }
+]
