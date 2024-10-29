@@ -57,6 +57,7 @@ public class ExportService
             using (var textWriter = new StreamWriter(fileStream))
             {
                 var serializer = new JsonSerializer();
+                serializer.Formatting = Formatting.Indented;
                 serializer.Serialize(textWriter, data);
             }
         }
