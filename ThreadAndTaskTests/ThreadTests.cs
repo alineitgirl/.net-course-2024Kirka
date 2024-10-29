@@ -51,9 +51,16 @@ public class ThreadTests
             _testOutputHelper.WriteLine($"\nКлиенты из файла ClientData_{i}.json");
             var clientsFromFile = exportService.ImportDataFromJsonFile<Client>
                 (Path.Combine(_pathToDirectory, $"ClientData_{i}.json")).ToList();
-            foreach (var cl in clientsFromFile)
+            if (clientsFromFile is List<Client> clients)
             {
-                _testOutputHelper.WriteLine(cl.ToString());
+                foreach (var cl in clients)
+                {
+                    _testOutputHelper.WriteLine(cl.ToString());
+                }
+            }
+            else
+            {
+                _testOutputHelper.WriteLine("Что-то пошло не так. Ошибка чтения из файла!");
             }
         }
     }
@@ -75,7 +82,7 @@ public class ThreadTests
     private void Consumer(CountdownEvent countdownEvent)
     {
         var clientsToWrite = new List<Client>();
-        var currentFile = GetNextFile();
+        var currentFile = GetNextFileName();
         var exportService = new ExportService();
 
         foreach (var client in _clientCollection.GetConsumingEnumerable())
@@ -84,11 +91,11 @@ public class ThreadTests
 
             lock (_lockObject)
             {
-                if (File.Exists(currentFile) && new FileInfo(currentFile).Length >= _maxFileSize)
+                if (File.Exists(currentFile) && new FileInfo(currentFile).Length < _maxFileSize)
                 {
                     exportService.ExportDataToJsonFile(clientsToWrite, Path.Combine(_pathToDirectory, currentFile));
                     clientsToWrite.Clear();
-                    currentFile = GetNextFile();
+                    currentFile = GetNextFileName();
                 }
             }
         }
@@ -103,7 +110,7 @@ public class ThreadTests
         _countdownEvent.Signal();
     }
 
-    private string GetNextFile()
+    private string GetNextFileName()
     {
         return $"ClientData_{Interlocked.Increment(ref _fileIndex)}.json";
     }
@@ -136,6 +143,7 @@ public class ThreadTests
             {
                 lock (_lockObject)
                 {
+                    
                     testAccount.Amount += amountToAdd;
                 }
             }
