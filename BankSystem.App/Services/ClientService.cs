@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using BankSystem.App.Exceptions;
 using BankSystem.App.Interfaces;
 using BankSystem.Domain.Models;
@@ -18,7 +20,7 @@ namespace BankSystem.App.Services
             _clientStorage = clientStorage;
         }
 
-        public void AddClient(Client newClient)
+        public async Task AddClientAsync(Client newClient)
         {
             if (newClient.Age < 18)
             {
@@ -30,29 +32,53 @@ namespace BankSystem.App.Services
                 throw new NoInfoAboutPassportNumberException("Не указаны паспортные данные у клиента!");
             }
 
-            if (_clientStorage.GetById(newClient.Id) != null) return;
-            _clientStorage.Add(newClient);
+            if (_clientStorage.GetByIdAsync(newClient.Id) != null) return;
+            await  _clientStorage.AddAsync(newClient);
         }
 
-        public void UpdateClient(Guid id, Client client)
-        => _clientStorage.Update(id, client);
+        public async Task UpdateClientAsync(Guid id, Client client)
+        =>  await _clientStorage.UpdateAsync(id, client);
         
-        public void DeleteClient(Guid id) => _clientStorage.Delete(id);
-        public Client GetById(Guid id) => _clientStorage.GetById(id);
+        public async Task DeleteClientAsync(Guid id) =>  await _clientStorage.DeleteAsync(id);
+        public async Task<Client> GetByIdAsync(Guid id) => await _clientStorage.GetByIdAsync(id);
 
-        public List<Client> GetByFilter(
-            Expression<Func<Client, bool>> filter, Func<Client, object> orderBy, 
-            Func<Client, object> groupBy, int pageNumber, int pageSize)
-        => _clientStorage.GetByFilter(filter, orderBy, groupBy, pageNumber, pageSize).ToList();
+        public async Task<List<Client>> GetByFilterAsync(
+            Expression<Func<Client, bool>> filter, Func<IQueryable<Client>, IOrderedQueryable<Client>> orderBy, 
+            int pageNumber, int pageSize)
+        {
+            var clients = await _clientStorage.GetByFilterAsync(filter, orderBy, pageNumber, pageSize);
+            return clients;
+        }
         
         
-        public void AddNewAccountToClient(Guid id, Account newAccount)
-        => _clientStorage.AddAccount(id, newAccount);
+        public async Task AddNewAccountToClientAsync(Guid id, Account newAccount)
+        => await _clientStorage.AddAccountAsync(id, newAccount);
 
-        public void UpdateAddedAccountOfClient(Guid id, Account oldAccount, Account newAccount)
-        => _clientStorage.UpdateAccount(id, oldAccount, newAccount);
+        public async Task UpdateAddedAccountOfClientAsync(Guid id, Account oldAccount, Account newAccount)
+        => await _clientStorage.UpdateAccountAsync(id, oldAccount, newAccount);
         
-        public void RemoveAccountFromClient(Guid id) => _clientStorage.DeleteAccount(id);
+        public async Task RemoveAccountFromClientAsync(Guid id) => await _clientStorage.DeleteAccountAsync(id);
+
+        public async Task<bool> WriteOffMoney(Guid clientId, Account account, double amount, CancellationToken token)
+        {
+            if (token.IsCancellationRequested)
+            {
+                return false;
+            }
+            var client = await _clientStorage.GetClientWithAccountsAsync(clientId);
+            if (client is null) return false;
+
+            var searchedAccount = client.Accounts.FirstOrDefault(a => a.Id == account.Id);
+            if (searchedAccount != null && searchedAccount.Amount >= amount)
+            {
+                searchedAccount.Amount -= amount;
+                await _clientStorage.UpdateAccountAsync(clientId, account, searchedAccount);
+                return true;
+            }
+
+            return false;
+        }
         
+        public async Task<Client?> GetClientWithAccountAsync(Guid clientId) => await _clientStorage.GetClientWithAccountsAsync(clientId);
     }
 }

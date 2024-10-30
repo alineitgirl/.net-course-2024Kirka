@@ -18,36 +18,36 @@ namespace BankSystem.Data.Storages
             _dbContext = dbContext;
         }
 
-        public Employee? GetById(Guid id)
+        public async Task<Employee?> GetByIdAsync(Guid id)
         {
-            return _dbContext.Employees.AsNoTracking()
-                .FirstOrDefault(c => c.Id == id);
+            return await _dbContext.Employees.AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == id);
         }
         
-        public IEnumerable<Employee> GetByFilter(
-            Expression<Func<Employee, bool>> filter = null, Func<Employee, object> orderBy = null, 
-            Func<Employee, object> groupBy = null, int pageNumber = 1, int pageSize = 1)
+        public async Task<List<Employee>> GetByFilterAsync(
+            Expression<Func<Employee, bool>> filter = null, Func<IQueryable<Employee>, IOrderedQueryable<Employee>> orderBy = null, 
+            int pageNumber = 1, int pageSize = 1)
         {
             var query = _dbContext.Employees.AsQueryable()
-                .Where(filter).OrderBy(orderBy).GroupBy(groupBy);
+                .Where(filter);
+            query = orderBy != null ? orderBy(query) : query;
 
-            return query
+             return query
                 .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .SelectMany(g => g);
+                .Take(pageSize).ToList();
         }
 
-        public void Add(Employee employee)
+        public async Task AddAsync(Employee employee)
         {
-            _dbContext.Employees.Add(employee);
-            _dbContext.SaveChanges();
+            await _dbContext.Employees.AddAsync(employee);
+            await _dbContext.SaveChangesAsync();
         }
         
-        public void Update(Guid id, Employee employee)
+        public async Task UpdateAsync(Guid id, Employee employee)
         {
-            _dbContext.Employees
+            await _dbContext.Employees
                 .Where(c => c.Id == id)
-                .ExecuteUpdate(s => s
+                .ExecuteUpdateAsync(s => s
                     .SetProperty(s => s.FirstName, employee.FirstName)
                     .SetProperty(s => s.LastName, employee.LastName)
                     .SetProperty(s => s.DateOfBirth, employee.DateOfBirth)
@@ -59,16 +59,15 @@ namespace BankSystem.Data.Storages
                     .SetProperty(s => s.Salary, employee.Salary)
                     .SetProperty(s => s.Department, employee.Department)
                 );
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
         
-        public void Delete(Guid id)
+        public async Task DeleteAsync(Guid id)
         {
-            _dbContext.Employees
+            await _dbContext.Employees
                 .Where(c => c.Id == id)
-                .ExecuteDelete();
-            _dbContext.SaveChanges();
+                .ExecuteDeleteAsync();
+            await _dbContext.SaveChangesAsync();
         }
-
     }
 }

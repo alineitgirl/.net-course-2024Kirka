@@ -20,15 +20,15 @@ public class ExportTest
     }
     
     [Fact]
-    public void ExportDataToCsvFile_Positiv_Test()
+    public async Task ExportDataToCsvFile_Positiv_Test()
     {
         //Arrange
         var clientStorage = new ClientStorage(new BankSystemDbContext()); 
         var clientService = new ClientService(clientStorage);
         
         //Act
-        var clients = clientService.GetByFilter(client => true, cl => cl.Id, cl => cl.Id, 
-            1, 50).ToList();
+        var clients = await clientService.GetByFilterAsync(client => true, cl => 
+                cl.OrderBy(c => c.Id), 1, 50);
         var pathToDirectory = Path.Combine(Directory.GetParent(AppContext.BaseDirectory).Parent.Parent.Parent.FullName);
         var fileName = "export_clients.csv";
         var exportService = new ExportService(); 
@@ -40,7 +40,7 @@ public class ExportTest
     }
     
     [Fact]
-    public void ImportClientsFromCsvFile_Positiv_Test()
+    public async Task ImportClientsFromCsvFile_Positiv_Test()
     {
         //Arrange
         var pathToDirectory = Path.Combine(Directory.GetParent(AppContext.BaseDirectory).Parent.Parent.Parent.FullName);
@@ -55,7 +55,7 @@ public class ExportTest
         {
             client.DateOfBirth = client.DateOfBirth.ToUniversalTime();
             client.CreatedOn = client.CreatedOn.ToUniversalTime();
-            clientStorage.Add(client);
+            await clientStorage.AddAsync(client);
         }
         
         //Assert
@@ -63,7 +63,7 @@ public class ExportTest
     }
     
     [Fact]
-    public void SerializeClientsToJsonFile_Positiv_Test()
+    public async Task SerializeClientsToJsonFile_Positiv_Test()
     {
         //Arrange
         var pathToDirectory = Path.Combine(Directory.GetParent(AppContext.BaseDirectory).Parent.Parent.Parent.FullName);
@@ -72,8 +72,8 @@ public class ExportTest
         
         //Act
         var clientStorage = new ClientStorage(new BankSystemDbContext());
-        var clients = clientStorage.GetByFilter(client => true, cl => cl.Id, cl => cl.Id,
-            1, 50).ToList();
+        var clients = await clientStorage.GetByFilterAsync(client => true, cl => 
+                cl.OrderBy(c => c.Id),  1, 50);
         exportService.ExportDataToJsonFile(clients, Path.Combine(pathToDirectory, fileName));
         
         //Assert
@@ -82,7 +82,7 @@ public class ExportTest
     }
 
     [Fact]
-    public void DeserializeClientsFromJsonFile_Positiv_Test()
+    public  async Task DeserializeClientsFromJsonFile_Positiv_Test()
     {
         //Arrange
         var pathToDirectory = Path.Combine(Directory.GetParent(AppContext.BaseDirectory).Parent.Parent.Parent.FullName);
@@ -93,8 +93,8 @@ public class ExportTest
         var selectedClients = exportService.ImportDataFromJsonFile<Client>
             (Path.Combine(pathToDirectory, fileName)).ToList();
         var clientStorage = new ClientStorage(new BankSystemDbContext());
-        var clients = clientStorage.GetByFilter(client => true, cl => cl.Id, cl => cl.Id,
-            1, 50).ToList();
+        var clients = await clientStorage.GetByFilterAsync(client => true, cl => 
+                cl.OrderBy(c => c.Id), 1, 50);
         
         //Assert
         Assert.True(File.Exists(Path.Combine(pathToDirectory, fileName)));
@@ -102,7 +102,7 @@ public class ExportTest
     }
 
     [Fact]
-    public void SerializeEmployeesToJsonFile_Positiv_Test()
+    public async Task SerializeEmployeesToJsonFile_Positiv_Test()
     {
         //Arrange
         var pathToDirectory = Path.Combine(Directory.GetParent(AppContext.BaseDirectory).Parent.Parent.Parent.FullName);
@@ -111,8 +111,8 @@ public class ExportTest
         
         //Act
         var employeeStorage = new EmployeeStorage(new BankSystemDbContext());
-        var employees = employeeStorage.GetByFilter(client => true, cl => cl.Id, cl => cl.Id,
-            1, 50).ToList();
+        var employees = await employeeStorage.GetByFilterAsync(client => true, cl 
+                => cl.OrderBy(c => c.Id), 1, 50);
         exportService.ExportDataToJsonFile(employees, Path.Combine(pathToDirectory, fileName));
         
         //Assert
@@ -121,7 +121,7 @@ public class ExportTest
     }
 
     [Fact]
-    public void DeserializeEmployeesFromJsonFile_Positiv_Test()
+    public async Task DeserializeEmployeesFromJsonFile_Positiv_Test()
     {
         //Arrange
         var pathToDirectory = Path.Combine(Directory.GetParent(AppContext.BaseDirectory).Parent.Parent.Parent.FullName);
@@ -132,8 +132,8 @@ public class ExportTest
         var selectedEmployees = exportService.ImportDataFromJsonFile<Employee>
             (Path.Combine(pathToDirectory, fileName)).ToList();
         var employeeStorage = new EmployeeStorage(new BankSystemDbContext());
-        var employees = employeeStorage.GetByFilter(client => true, cl => cl.Id, cl => cl.Id,
-            1, 50).ToList();
+        var employees =  await employeeStorage.GetByFilterAsync(client => true, 
+            cl => cl.OrderBy(c => c.Id), 1, 50);
         
         //Assert
         Assert.True(File.Exists(Path.Combine(pathToDirectory, fileName)));
@@ -141,7 +141,7 @@ public class ExportTest
     }
 
     [Fact]
-    public void ExportAOneClientOrOneEmployee_Positiv_Test()
+    public async Task ExportAOneClientOrOneEmployee_Positiv_Test()
     { //Arrange
         var pathToDirectory = Path.Combine(Directory.GetParent(AppContext.BaseDirectory).Parent.Parent.Parent.FullName);
         var fileNameForEmployee = "export_one_employee.json";
@@ -150,11 +150,11 @@ public class ExportTest
         
         //Act
         var clientStorage = new ClientStorage(new BankSystemDbContext());
-        var clients = clientStorage.GetByFilter(client => true, cl => cl.Id, cl => cl.Id,
-            1, 1).ToList();
+        var clients = await clientStorage.GetByFilterAsync(client => true, cl => cl.OrderBy(
+                c => c.Id), 1, 1);
         var employeeStorage = new EmployeeStorage(new BankSystemDbContext());
-        var employees = employeeStorage.GetByFilter(employee => true, cl => cl.Id, cl => cl.Id,
-            1,1).ToList();
+        var employees =  await employeeStorage.GetByFilterAsync(employee => true, cl
+                => cl.OrderBy(c => c.Id), 1,1);
         exportService.ExportDataToJsonFile(clients, Path.Combine(pathToDirectory, fileNameForClient));
         exportService.ExportDataToJsonFile(employees, Path.Combine(pathToDirectory, fileNameForEmployee));
         

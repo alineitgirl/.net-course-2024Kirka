@@ -19,14 +19,14 @@ namespace BankSystem.App.Services.Tests
             var clientService = new ClientService(new ClientStorage(new BankSystemDbContext()));
             foreach (var client in listOfClients)
             {
-                clientService.AddClient(client);
+                clientService.AddClientAsync(client);
             }
             
             //Act    
             var newClient = new Client {FirstName = "Олег", LastName = "Скворцов", Age = 16};
 
             //Assert
-            Assert.Throws<AgeOutOfRangeException>(() => clientService.AddClient(newClient));
+            Assert.ThrowsAsync<AgeOutOfRangeException>(() => clientService.AddClientAsync(newClient));
         }
 
         [Fact]
@@ -38,18 +38,18 @@ namespace BankSystem.App.Services.Tests
             var clientService = new ClientService(new ClientStorage(new BankSystemDbContext()));
             foreach (var client in listOfClients)
             {
-                clientService.AddClient(client);
+                clientService.AddClientAsync(client);
             }
             
             //Act
             var newClient = new Client {FirstName = "Олег", LastName = "Скворцов", Age = 20};
 
             //Assert
-            Assert.Throws<NoInfoAboutPassportNumberException>(() => clientService.AddClient(newClient));
+            Assert.ThrowsAsync<NoInfoAboutPassportNumberException>(() => clientService.AddClientAsync(newClient));
         }
 
         [Fact]
-        public void AddUpdateAndGetClientsByFilter_PositivTest()
+        public async Task AddUpdateAndGetClientsByFilter_PositivTest()
         {
             //Arrange
             var testDataGenerator = new TestDataGenerator();
@@ -57,7 +57,7 @@ namespace BankSystem.App.Services.Tests
             var clientService = new ClientService(new ClientStorage(new BankSystemDbContext()));
             foreach (var client in listOfClients)
             {
-                clientService.AddClient(client);
+                await clientService.AddClientAsync(client);
             }
             
             var newClient = new Client
@@ -75,17 +75,18 @@ namespace BankSystem.App.Services.Tests
                 };
             
             //Act 
-            clientService.AddClient(newClient);
-            clientService.AddNewAccountToClient(newClient.Id, new Account {Amount = 123, CurrencyName = "EUR"});
-            clientService.UpdateAddedAccountOfClient(newClient.Id,new Account {Amount = 123, CurrencyName = "EUR"}, 
+            await clientService.AddClientAsync(newClient);
+            await clientService.AddNewAccountToClientAsync(newClient.Id, new Account {Amount = 123, CurrencyName = "EUR"});
+            await clientService.UpdateAddedAccountOfClientAsync(newClient.Id,new Account {Amount = 123, CurrencyName = "EUR"}, 
                 new Account {Amount = 444, CurrencyName = "RUP" });
-            var clientsWithSameName  = clientService.GetByFilter(cl =>
+            var clientsWithSameName  = await clientService.GetByFilterAsync(cl =>
                 cl.FirstName == clientToSearch.FirstName && cl.LastName == clientToSearch.LastName,
-                c => c.Age, g => g.DateOfBirth, 1, 1).ToList();
-            var clientWithSamePhoneNumber = clientService.GetByFilter(cl =>
-                cl.PhoneNumber == clientToSearch.PhoneNumber, c => c.PhoneNumber, c => c.Age, 1, 1).ToList();
-            var clientWithSamePassportNumber = clientService.GetByFilter(cl =>
-                cl.Passport == clientToSearch.Passport, c => c.Age,  c => c.Passport, 1, 1).ToList();
+                cl => cl.OrderBy(c => c.Id), 1, 1);
+            var clientWithSamePhoneNumber = await clientService.GetByFilterAsync(cl =>
+                cl.PhoneNumber == clientToSearch.PhoneNumber, c => 
+                c.OrderBy(cl => cl.PhoneNumber), 1, 1);
+            var clientWithSamePassportNumber = await clientService.GetByFilterAsync(cl =>
+                cl.Passport == clientToSearch.Passport, c => c.OrderBy(cl => cl.PhoneNumber), 1, 1);
 
             //Assert
             Assert.Single(clientsWithSameName);
@@ -94,7 +95,7 @@ namespace BankSystem.App.Services.Tests
         }
         
         [Fact]
-        public void AddEmployee_WithInvalidAge_ThrowsException()
+        public async Task  AddEmployee_WithInvalidAge_ThrowsException()
         {
             //Arrange
             var testDataGenerator = new TestDataGenerator();
@@ -102,7 +103,7 @@ namespace BankSystem.App.Services.Tests
             var employeeService = new EmployeeService(new EmployeeStorage(new BankSystemDbContext()));
             foreach (var employee in listOfEmployees)
             {
-                employeeService.AddEmployee(employee);
+                 await employeeService.AddEmployeeAsync(employee);
             }
 
             
@@ -115,7 +116,7 @@ namespace BankSystem.App.Services.Tests
             };
 
             //Assert
-            Assert.Throws<AgeOutOfRangeException>(() => employeeService.AddEmployee(newEmployee));
+            await Assert.ThrowsAsync<AgeOutOfRangeException>(() => employeeService.AddEmployeeAsync(newEmployee));
         }
 
         [Fact]
@@ -127,7 +128,7 @@ namespace BankSystem.App.Services.Tests
             var employeeService = new EmployeeService(new EmployeeStorage(new BankSystemDbContext()));
             foreach (var employee in listOfEmployees)
             {
-                employeeService.AddEmployee(employee);
+                employeeService.AddEmployeeAsync(employee);
             }
             
             
@@ -140,11 +141,11 @@ namespace BankSystem.App.Services.Tests
             };
 
             //Assert
-            Assert.Throws<NoInfoAboutPassportNumberException>(() => employeeService.AddEmployee(newEmployee));
+            Assert.ThrowsAsync<NoInfoAboutPassportNumberException>(() => employeeService.AddEmployeeAsync(newEmployee));
         }
 
         [Fact]
-        public void AddUpdateAndGetEmployeesByFilter_PositivTest()
+        public async Task AddUpdateAndGetEmployeesByFilter_PositivTest()
         {
             //Arrange
             var testDataGenerator = new TestDataGenerator();
@@ -152,7 +153,7 @@ namespace BankSystem.App.Services.Tests
             var employeeService = new EmployeeService(new EmployeeStorage(new BankSystemDbContext()));
             foreach (var employee in listOfEmployees)
             {
-                employeeService.AddEmployee(employee);
+                await employeeService.AddEmployeeAsync(employee);
             }
             
             Employee newEmployee = new Employee
@@ -176,7 +177,7 @@ namespace BankSystem.App.Services.Tests
 
 
             //Act
-            employeeService.AddEmployee(newEmployee);
+            await employeeService.AddEmployeeAsync(newEmployee);
             var employeeToUpdate = new Employee
             {
                 FirstName = "",
@@ -188,15 +189,16 @@ namespace BankSystem.App.Services.Tests
                 Department = "IT-отдел"
             };
             
-            var employeeByName = employeeService.GetByFilter(empl =>
+            var employeeByName = await employeeService.GetByFilterAsync(empl =>
                 empl.FirstName == employeeToSearch.FirstName && empl.LastName == employeeToSearch.LastName,
-                c => c.Age, g => g.Salary, 1, 1).ToList();
-            employeeService.UpdateEmployee(newEmployee.Id, employeeToUpdate);
+                c => c.OrderBy(cl => cl.Age),  1, 1);
+            await employeeService.UpdateEmployeeAsync(newEmployee.Id, employeeToUpdate);
+            var result = await employeeService.GetByFilterAsync(empl => empl.FirstName == "Александр",
+                c => c.OrderBy(cl => cl.Age), 1, 1);
 
             //Assert
             Assert.Single(employeeByName);
-            Assert.Empty(employeeService.GetByFilter(empl => empl.FirstName == "Александр",
-                c => c.Age, g => g.Salary, 1, 1));
+            Assert.Empty(result);
         }
     }
 }

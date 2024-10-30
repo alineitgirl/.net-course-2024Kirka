@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using BankSystem.App.Exceptions;
 using BankSystem.App.Interfaces;
 using BankSystem.Domain.Models;
@@ -17,7 +18,7 @@ namespace BankSystem.App.Services
             _employeeStorage = employeeStorage;
         }
         
-        public void AddEmployee(Employee newEmployee)
+        public async Task AddEmployeeAsync(Employee newEmployee)
         {
             if (newEmployee.Age < 18)
             {
@@ -29,20 +30,22 @@ namespace BankSystem.App.Services
                 throw new NoInfoAboutPassportNumberException("Не указаны паспортные данные у сотрудника!");
             }
             
-            _employeeStorage.Add(newEmployee);
-
+             await _employeeStorage.AddAsync(newEmployee);
         }
         
-        public void UpdateEmployee(Guid id, Employee employee)
-        => _employeeStorage.Update(id, employee);
+        public async Task UpdateEmployeeAsync(Guid id, Employee employee)
+        => await _employeeStorage.UpdateAsync(id, employee);
         
-        public List<Employee> GetByFilter(
-            Expression<Func<Employee, bool>> filter = null, Func<Employee, object> orderBy = null, 
-            Func<Employee, object> groupBy =  null, int pageNumber = 1, int pageSize = 1)
-        => _employeeStorage.GetByFilter(filter, orderBy, groupBy, pageNumber, pageSize).ToList();
+        public async Task<List<Employee>> GetByFilterAsync(
+            Expression<Func<Employee, bool>> filter = null, Func<IQueryable<Employee>, IOrderedQueryable<Employee>> orderBy = null, 
+            int pageNumber = 1, int pageSize = 1)
+        {
+            var employees = await _employeeStorage.GetByFilterAsync(filter, orderBy, pageNumber, pageSize);
+            return employees.ToList();
+        }
+
+        public async Task<Employee?> GetByIdAsync(Guid id) => await _employeeStorage.GetByIdAsync(id);
         
-        public Employee? GetById(Guid id) => _employeeStorage.GetById(id);
-        
-        public void DeleteEmployee(Guid id) => _employeeStorage.Delete(id);
+        public async Task DeleteEmployee(Guid id) => await _employeeStorage.DeleteAsync(id);
     }
 }
