@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 using BankSystem.App.Exceptions;
 using BankSystem.App.Interfaces;
 using BankSystem.Domain.Models;
@@ -17,8 +19,12 @@ namespace BankSystem.App.Services
             _employeeStorage = employeeStorage;
         }
         
-        public void AddEmployee(Employee newEmployee)
+        public async Task AddEmployeeAsync(Employee newEmployee, CancellationToken cancellationToken = default)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
             if (newEmployee.Age < 18)
             {
                 throw new AgeOutOfRangeException("Сотрудник не может быть моложе 18 лет!");
@@ -27,22 +33,48 @@ namespace BankSystem.App.Services
             if (string.IsNullOrEmpty(newEmployee.Passport))
             {
                 throw new NoInfoAboutPassportNumberException("Не указаны паспортные данные у сотрудника!");
-            }
-            
-            _employeeStorage.Add(newEmployee);
+            } 
+            await _employeeStorage.AddAsync(newEmployee, cancellationToken);
+        }
 
+        public async Task UpdateEmployeeAsync(Guid id, Employee employee, CancellationToken cancellationToken = default)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+            await _employeeStorage.UpdateAsync(id, employee, cancellationToken);
         }
         
-        public void UpdateEmployee(Guid id, Employee employee)
-        => _employeeStorage.Update(id, employee);
-        
-        public List<Employee> GetByFilter(
-            Expression<Func<Employee, bool>> filter = null, Func<Employee, object> orderBy = null, 
-            Func<Employee, object> groupBy =  null, int pageNumber = 1, int pageSize = 1)
-        => _employeeStorage.GetByFilter(filter, orderBy, groupBy, pageNumber, pageSize).ToList();
-        
-        public Employee? GetById(Guid id) => _employeeStorage.GetById(id);
-        
-        public void DeleteEmployee(Guid id) => _employeeStorage.Delete(id);
+        public async Task<List<Employee>> GetByFilterAsync(
+            Expression<Func<Employee, bool>> filter = null, Func<IQueryable<Employee>, IOrderedQueryable<Employee>> orderBy = null, 
+            int pageNumber = 1, int pageSize = 1, CancellationToken cancellationToken = default)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return null;
+            }
+            var employees = await _employeeStorage.GetByFilterAsync(filter, orderBy, pageNumber, pageSize,
+                cancellationToken);
+            return employees.ToList();
+        }
+
+        public async Task<Employee?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return null;
+            }
+            return await _employeeStorage.GetByIdAsync(id, cancellationToken);
+        }
+
+        public async Task DeleteEmployee(Guid id, CancellationToken cancellationToken = default)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+            await _employeeStorage.DeleteAsync(id, cancellationToken);
+        }
     }
 }

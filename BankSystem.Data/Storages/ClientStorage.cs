@@ -21,95 +21,139 @@ namespace BankSystem.Data.Storages
             _dbContext = dbContext;
         }
         
-        public Client? GetById(Guid id)
+        public async Task<Client?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            return _dbContext.Clients.AsNoTracking()
-                .FirstOrDefault(c => c.Id == id);
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return null;
+            }
+            return await _dbContext.Clients.AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
         }
-        public IEnumerable<Client> GetByFilter(
-            Expression<Func<Client, bool>> filter = null, Func<Client, object> orderBy =  null, 
-            Func<Client, object> groupBy = null, int pageNumber = 1, int pageSize = 1)
+        public async Task<List<Client>> GetByFilterAsync(
+            Expression<Func<Client, bool>> filter = null, 
+            Func<IQueryable<Client>, IOrderedQueryable<Client>> orderBy = null,
+            int pageNumber = 1, int pageSize = 10, CancellationToken cancellationToken = default)
         {
-            var query = _dbContext.Clients.AsQueryable()
-                .Where(filter).OrderBy(orderBy).GroupBy(groupBy);
-
-            return query
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return null;
+            }
+            var query = _dbContext.Clients.Where(filter);
+            query = orderBy != null ? orderBy(query) : query;
+            
+            query = query
                 .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .SelectMany(g => g);
+                .Take(pageSize);
+            return await query.ToListAsync(cancellationToken);
         }
 
-        public void Add(Client client)
+
+        public async Task AddAsync(Client client, CancellationToken cancellationToken = default)
         {
-            _dbContext.Clients.Add(client);
-            _dbContext.SaveChanges();
-            AddDefaultUsdAccountToClient(client.Id);
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+            await _dbContext.Clients.AddAsync(client, cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            await AddDefaultUsdAccountToClient(client.Id);
         }
         
-        public void Update(Guid id, Client client)
+        public async Task UpdateAsync(Guid id, Client client, CancellationToken cancellationToken = default)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
             if (_dbContext.Clients.Any(c => c.Id == id))
             {
-                _dbContext.Clients
+               await _dbContext.Clients
                     .Where(c => c.Id == id)
-                    .ExecuteUpdate(s => s
+                    .ExecuteUpdateAsync(s => s
                         .SetProperty(s => s.FirstName, client.FirstName)
                         .SetProperty(s => s.LastName, client.LastName)
                         .SetProperty(s => s.DateOfBirth, client.DateOfBirth)
                         .SetProperty(s => s.PhoneNumber, client.PhoneNumber)
                         .SetProperty(s => s.Passport, client.Passport)
                         .SetProperty(s => s.Adress, client.Adress)
-                        .SetProperty(s => s.Age, client.Age));
+                        .SetProperty(s => s.Age, client.Age)
+                        .SetProperty(s => s.Accounts, client.Accounts), cancellationToken);
             }
-           
                 
         }
         
-        public void Delete(Guid id)
+        public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            _dbContext.Clients
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+            await _dbContext.Clients
                 .Where(c => c.Id == id)
-                .ExecuteDelete();
-            _dbContext.SaveChanges();
+                .ExecuteDeleteAsync(cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
 
-        public void AddAccount(Guid id, Account account)
+        public async Task AddAccountAsync(Guid id, Account account, CancellationToken cancellationToken = default)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
             account.ClientId = id;
-           _dbContext.Accounts
-               .Add(new Account
+            await _dbContext.Accounts
+               .AddAsync(new Account
                {
                    Amount = account.Amount,
                    CurrencyName = account.CurrencyName,
                    ClientId = id
-               });
+               }, cancellationToken);
         }
 
-        private void AddDefaultUsdAccountToClient(Guid id)
+        private async Task AddDefaultUsdAccountToClient(Guid id)
         {
-            _dbContext.Accounts.Add(new Account
+            await _dbContext.Accounts.AddAsync(new Account
             {
                 ClientId = id,
                 CurrencyName = "USD"
             });
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void UpdateAccount(Guid id, Account oldAccount, Account newAccount)
+        public async Task UpdateAccountAsync(Guid id, Account oldAccount, Account newAccount, CancellationToken cancellationToken = default)
         {
-            _dbContext.Accounts
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+            await _dbContext.Accounts
                 .Where(a => a.ClientId == id && a.Id == oldAccount.Id)
-                .ExecuteUpdate(a => a
+                .ExecuteUpdateAsync(a => a
                     .SetProperty(x => x.Amount, newAccount.Amount)
-                    .SetProperty(x => x.CurrencyName, newAccount.CurrencyName));
+                    .SetProperty(x => x.CurrencyName, newAccount.CurrencyName), cancellationToken);
         }
 
-        public void DeleteAccount(Guid id)
+        public async Task DeleteAccountAsync(Guid id, CancellationToken cancellationToken = default)
         {
-           _dbContext.Accounts
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+            await _dbContext.Accounts
                .Where(a => a.Id == id)
-               .ExecuteDelete();
+               .ExecuteDeleteAsync(cancellationToken);
+        }
+        public async Task<Client?> GetClientWithAccountsAsync(Guid clientId, CancellationToken cancellationToken = default)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return null;
+            }
+            return await _dbContext.Clients
+                .Include(c => c.Accounts)
+                .FirstOrDefaultAsync(c => c.Id == clientId, cancellationToken);
         }
     }
 }

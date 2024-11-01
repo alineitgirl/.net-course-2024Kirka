@@ -18,36 +18,52 @@ namespace BankSystem.Data.Storages
             _dbContext = dbContext;
         }
 
-        public Employee? GetById(Guid id)
+        public async Task<Employee?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return _dbContext.Employees.AsNoTracking()
-                .FirstOrDefault(c => c.Id == id);
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return null;
+            }
+            return await _dbContext.Employees.AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
         }
         
-        public IEnumerable<Employee> GetByFilter(
-            Expression<Func<Employee, bool>> filter = null, Func<Employee, object> orderBy = null, 
-            Func<Employee, object> groupBy = null, int pageNumber = 1, int pageSize = 1)
+        public async Task<List<Employee>> GetByFilterAsync(
+            Expression<Func<Employee, bool>> filter = null, Func<IQueryable<Employee>, IOrderedQueryable<Employee>> orderBy = null, 
+            int pageNumber = 1, int pageSize = 1, CancellationToken cancellationToken = default)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return null;
+            }
             var query = _dbContext.Employees.AsQueryable()
-                .Where(filter).OrderBy(orderBy).GroupBy(groupBy);
+                .Where(filter);
+            query = orderBy != null ? orderBy(query) : query;
 
-            return query
+             return query
                 .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .SelectMany(g => g);
+                .Take(pageSize).ToList();
         }
 
-        public void Add(Employee employee)
+        public async Task AddAsync(Employee employee, CancellationToken cancellationToken = default)
         {
-            _dbContext.Employees.Add(employee);
-            _dbContext.SaveChanges();
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+            await _dbContext.Employees.AddAsync(employee, cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
         }
         
-        public void Update(Guid id, Employee employee)
+        public async Task UpdateAsync(Guid id, Employee employee, CancellationToken cancellationToken = default)
         {
-            _dbContext.Employees
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+            await _dbContext.Employees
                 .Where(c => c.Id == id)
-                .ExecuteUpdate(s => s
+                .ExecuteUpdateAsync(s => s
                     .SetProperty(s => s.FirstName, employee.FirstName)
                     .SetProperty(s => s.LastName, employee.LastName)
                     .SetProperty(s => s.DateOfBirth, employee.DateOfBirth)
@@ -57,18 +73,21 @@ namespace BankSystem.Data.Storages
                     .SetProperty(s => s.Age, employee.Age)
                     .SetProperty(s => s.Position, employee.Position)
                     .SetProperty(s => s.Salary, employee.Salary)
-                    .SetProperty(s => s.Department, employee.Department)
+                    .SetProperty(s => s.Department, employee.Department), cancellationToken
                 );
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync(cancellationToken);
         }
         
-        public void Delete(Guid id)
+        public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            _dbContext.Employees
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+            await _dbContext.Employees
                 .Where(c => c.Id == id)
-                .ExecuteDelete();
-            _dbContext.SaveChanges();
+                .ExecuteDeleteAsync(cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
         }
-
     }
 }

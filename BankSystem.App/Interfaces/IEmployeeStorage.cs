@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using BankSystem.Domain.Models;
 
 namespace BankSystem.App.Interfaces
 {
     public interface IEmployeeStorage : IStorage<Employee>
     {
-        public void Update(Guid id, Employee employee);
+        public Task UpdateAsync(Guid id, Employee employee, CancellationToken cancellationToken);
     }
 }

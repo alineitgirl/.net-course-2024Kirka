@@ -12,7 +12,7 @@ namespace BankSystem.Data.Tests
     public class IEnumerableTests
     {
         [Fact]
-        public void TestClientsStorage()
+        public async void TestClientsStorage()
         {
             //Arrange
             var testDataGenerator = new TestDataGenerator();
@@ -20,7 +20,7 @@ namespace BankSystem.Data.Tests
             var clientStorage = new ClientStorage(new BankSystemDbContext());
             foreach (var client in listOfClients)
             {
-                clientStorage.Add(client);
+                await clientStorage.AddAsync(client);
             }
             Client newClient = new Client()
             {
@@ -50,25 +50,26 @@ namespace BankSystem.Data.Tests
             };
 
             //Act
-            clientStorage.Add(newClient);
-            clientStorage.Update(newClient.Id, oldClient);
-            clientStorage.Delete(oldClient.Id);
-            clientStorage.AddAccount(newClient.Id, accounts[0]);
-            clientStorage.UpdateAccount(newClient.Id, accounts[0], new Account
+            await clientStorage.AddAsync(newClient);
+            await clientStorage.UpdateAsync(newClient.Id, oldClient);
+            await clientStorage.DeleteAsync(oldClient.Id);
+            await clientStorage.AddAccountAsync(newClient.Id, accounts[0]);
+            await clientStorage.UpdateAccountAsync(newClient.Id, accounts[0], new Account
             {
                  Amount = 123.45, 
                  CurrencyName = "EUR"
             });
-
+            var result1 = await clientStorage.GetByFilterAsync(cl => cl.Age == 18,
+                c => c.OrderBy(cl => cl.Id), 1, 1);
+            var result2 = await clientStorage.GetByFilterAsync(cl => cl.Accounts.Contains(new Account
+            {
+                Amount = 1234.5,
+                CurrencyName = "USD"
+            }), c => c.OrderBy(cl => cl.Id),1, 1);
 
             //Assert
-            Assert.Empty(clientStorage.
-                GetByFilter(cl => cl.Age == 18,
-                    c => c.FirstName, c => c.Passport, 1, 1));
-            Assert.IsType<List<Client>>(clientStorage.GetByFilter(cl => cl.Accounts.Contains(new Account {
-               Amount = 1234.5, 
-               CurrencyName = "USD"
-            }), c => c.PhoneNumber, c => c.FirstName, 1, 1).ToList());
+            Assert.Empty(result1);
+            Assert.IsType<List<Client>>(result2);
         }
 
         [Fact]
@@ -80,7 +81,7 @@ namespace BankSystem.Data.Tests
             var employeeStorage = new EmployeeStorage(new BankSystemDbContext());
             foreach (var employee in listOfEmployees)
             {
-                employeeStorage.Add(employee);
+                employeeStorage.AddAsync(employee);
             }   
             var newEmployee = new Employee()
             {
@@ -114,16 +115,17 @@ namespace BankSystem.Data.Tests
             };
             
             //Act
-            employeeStorage.Add(oldEmployee);
-            employeeStorage.Add(newEmployee);
-            employeeStorage.Update(oldEmployee.Id, newEmployee);
-            employeeStorage.Delete(newEmployee.Id);
-            var employeesLivingInNewYork = employeeStorage.GetByFilter(empl =>
-                empl.Adress == "Tiraspol", c => c.FirstName, c => c.PhoneNumber, 1, 1).ToList();
+            employeeStorage.AddAsync(oldEmployee);
+            employeeStorage.AddAsync(newEmployee);
+            employeeStorage.UpdateAsync(oldEmployee.Id, newEmployee);
+            employeeStorage.DeleteAsync(newEmployee.Id);
+            var employeesLivingInNewYork = employeeStorage.GetByFilterAsync(empl =>
+                empl.Adress == "Tiraspol", c => c.OrderBy(cl => cl.Adress), 1, 1)
+                .Result.ToList();
 
             //Assert
-            Assert.Empty(employeeStorage.GetByFilter(empl => empl.Equals(newEmployee),
-                c => c.FirstName, c => c.PhoneNumber, 1, 1));
+            Assert.Empty(employeeStorage.GetByFilterAsync(empl => empl.Equals(newEmployee),
+                c => c.OrderBy(cl => cl.PhoneNumber), 1, 1).Result.ToList());
             Assert.Empty(employeesLivingInNewYork);
         }
     }
