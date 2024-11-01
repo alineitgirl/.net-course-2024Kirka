@@ -19,24 +19,27 @@ namespace BankSystem.App.Services
 
         public async Task UpdateRateAsync(CancellationToken cancellationToken = default)
         {
-            if (cancellationToken.IsCancellationRequested)
+            while (true)
             {
-                return;
-            }
-            var today = DateTime.UtcNow.Date;
-            var clientsToUpdate = _clientStorage.GetByFilterAsync(cl => cl.CreatedOn.Date == today.AddMonths(-1),
-                cl => cl.OrderBy(c => c.Age), 1, 100);
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return;
+                }
+                var today = DateTime.UtcNow.Date;
+                var clientsToUpdate = _clientStorage.GetByFilterAsync(cl => cl.CreatedOn.Date == today.AddMonths(-1),
+                    cl => cl.OrderBy(c => c.Age), 1, 100, cancellationToken);
             
-            foreach (var client in clientsToUpdate.Result)
-            {
-                var clientWithAccounts = await _clientStorage.GetClientWithAccountsAsync(client.Id);
-                var accountOfClient = clientWithAccounts.Accounts.FirstOrDefault(); 
-               if (accountOfClient != null)
-               {
-                   var newAccount = new Account() { Amount = accountOfClient.Amount * (1+_rate),
-                       CurrencyName = accountOfClient.CurrencyName};
-                   await _clientStorage.UpdateAccountAsync(client.Id, accountOfClient, newAccount);
-               }
+                foreach (var client in clientsToUpdate.Result)
+                {
+                    var clientWithAccounts = await _clientStorage.GetClientWithAccountsAsync(client.Id, cancellationToken);
+                    var accountOfClient = clientWithAccounts.Accounts.FirstOrDefault(); 
+                    if (accountOfClient != null)
+                    {
+                        var newAccount = new Account() { Amount = accountOfClient.Amount * (1+_rate),
+                            CurrencyName = accountOfClient.CurrencyName};
+                        await _clientStorage.UpdateAccountAsync(client.Id, accountOfClient, newAccount, cancellationToken);
+                    }
+                }
             }
         }
     }

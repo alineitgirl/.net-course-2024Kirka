@@ -78,6 +78,8 @@ public class TasksTests
         int consumerCount = 3;
         countdownEvent = new CountdownEvent(consumerCount);
         var clientService = new ClientService(new ClientStorage(new BankSystemDbContext()));
+        var cancellationTokenSource = new CancellationTokenSource();
+        var token = cancellationTokenSource.Token;
        
         for (int i = 0; i < consumerCount; i++)
         {
@@ -85,12 +87,12 @@ public class TasksTests
         }
         
         var clients = await clientService.GetByFilterAsync( cl => true, cl => cl.OrderBy(
-            c => c.Id), 1, 10);
+            c => c.Id), 1, 10, token);
         foreach (var client in clients)
         {
-            var clWithAccounts = await clientService.GetClientWithAccountAsync(client.Id);
+            var clWithAccounts = await clientService.GetClientWithAccountAsync(client.Id, token);
             var accounts = clWithAccounts.Accounts.FirstOrDefault(a => a.Id == client.Id);
-            collectionOfRequests.Add((client.Id, accounts, 100, CancellationToken.None));
+            collectionOfRequests.Add((client.Id, accounts, 100, token));
         }
 
         collectionOfRequests.CompleteAdding();
@@ -102,11 +104,12 @@ public class TasksTests
         
         foreach (var client in clients)
         {
-            var clientWithAccount = await clientService.GetClientWithAccountAsync(client.Id);
+            var clientWithAccount = await clientService.GetClientWithAccountAsync(client.Id, token);
             var accounts = clientWithAccount.Accounts.FirstOrDefault(a => a.CurrencyName == "USD");
             Assert.Equal(900, accounts.Amount); 
         }
     }
+    
     private async Task ProcessWithdrawals(ClientService clientService)
     {
         foreach (var (clientId, account, amount, token) in collectionOfRequests.GetConsumingEnumerable())
@@ -115,21 +118,7 @@ public class TasksTests
             {
                 return;
             }
-            var success = await clientService.WriteOffMoney(clientId, account, amount, token);
-            if (success)
-            {
-                lock (lockObject)
-                {
-                    output.WriteLine($"Успешно списано {amount} со счета клиента {clientId}.");
-                }
-            }
-            else
-            {
-                lock (lockObject)
-                {
-                    output.WriteLine($"Ошибка списания {amount} со счета клиента {clientId}.");
-                }
-            }
+            await clientService.WriteOffMoney(clientId, account, amount, token);
         }
         countdownEvent.Signal();
     }

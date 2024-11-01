@@ -18,16 +18,24 @@ namespace BankSystem.Data.Storages
             _dbContext = dbContext;
         }
 
-        public async Task<Employee?> GetByIdAsync(Guid id)
+        public async Task<Employee?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return null;
+            }
             return await _dbContext.Employees.AsNoTracking()
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
         }
         
         public async Task<List<Employee>> GetByFilterAsync(
             Expression<Func<Employee, bool>> filter = null, Func<IQueryable<Employee>, IOrderedQueryable<Employee>> orderBy = null, 
-            int pageNumber = 1, int pageSize = 1)
+            int pageNumber = 1, int pageSize = 1, CancellationToken cancellationToken = default)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return null;
+            }
             var query = _dbContext.Employees.AsQueryable()
                 .Where(filter);
             query = orderBy != null ? orderBy(query) : query;
@@ -37,14 +45,22 @@ namespace BankSystem.Data.Storages
                 .Take(pageSize).ToList();
         }
 
-        public async Task AddAsync(Employee employee)
+        public async Task AddAsync(Employee employee, CancellationToken cancellationToken = default)
         {
-            await _dbContext.Employees.AddAsync(employee);
-            await _dbContext.SaveChangesAsync();
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+            await _dbContext.Employees.AddAsync(employee, cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
         }
         
-        public async Task UpdateAsync(Guid id, Employee employee)
+        public async Task UpdateAsync(Guid id, Employee employee, CancellationToken cancellationToken = default)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
             await _dbContext.Employees
                 .Where(c => c.Id == id)
                 .ExecuteUpdateAsync(s => s
@@ -57,17 +73,21 @@ namespace BankSystem.Data.Storages
                     .SetProperty(s => s.Age, employee.Age)
                     .SetProperty(s => s.Position, employee.Position)
                     .SetProperty(s => s.Salary, employee.Salary)
-                    .SetProperty(s => s.Department, employee.Department)
+                    .SetProperty(s => s.Department, employee.Department), cancellationToken
                 );
-            await _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync(cancellationToken);
         }
         
-        public async Task DeleteAsync(Guid id)
+        public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
             await _dbContext.Employees
                 .Where(c => c.Id == id)
-                .ExecuteDeleteAsync();
-            await _dbContext.SaveChangesAsync();
+                .ExecuteDeleteAsync(cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }

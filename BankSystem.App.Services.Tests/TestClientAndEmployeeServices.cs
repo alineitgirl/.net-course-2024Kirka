@@ -17,47 +17,53 @@ namespace BankSystem.App.Services.Tests
             var testDataGenerator = new TestDataGenerator();
             var listOfClients = testDataGenerator.GenerateListOfClients(10);
             var clientService = new ClientService(new ClientStorage(new BankSystemDbContext()));
+            var cancellationToken = new CancellationTokenSource();
+            var token = cancellationToken.Token;
             foreach (var client in listOfClients)
             {
-                clientService.AddClientAsync(client);
+                clientService.AddClientAsync(client, token);
             }
             
             //Act    
             var newClient = new Client {FirstName = "Олег", LastName = "Скворцов", Age = 16};
 
             //Assert
-            Assert.ThrowsAsync<AgeOutOfRangeException>(() => clientService.AddClientAsync(newClient));
+            Assert.ThrowsAsync<AgeOutOfRangeException>(() => clientService.AddClientAsync(newClient, token));
         }
 
         [Fact]
-        public void AddClient_WithInvalidPassport_ThrowsException()
+        public async void AddClient_WithInvalidPassport_ThrowsException()
         {
             //Arrange
             var testDataGenerator = new TestDataGenerator();
             var listOfClients = testDataGenerator.GenerateListOfClients(10);
             var clientService = new ClientService(new ClientStorage(new BankSystemDbContext()));
+            var cancellationToken = new CancellationTokenSource();
+            var token = cancellationToken.Token;
             foreach (var client in listOfClients)
             {
-                clientService.AddClientAsync(client);
+                await clientService.AddClientAsync(client, token);
             }
             
             //Act
             var newClient = new Client {FirstName = "Олег", LastName = "Скворцов", Age = 20};
 
             //Assert
-            Assert.ThrowsAsync<NoInfoAboutPassportNumberException>(() => clientService.AddClientAsync(newClient));
+            Assert.ThrowsAsync<NoInfoAboutPassportNumberException>(() => clientService.AddClientAsync(newClient, token));
         }
 
         [Fact]
         public async Task AddUpdateAndGetClientsByFilter_PositivTest()
         {
             //Arrange
+            var cancellationTokenSource = new CancellationTokenSource();
+            var token = cancellationTokenSource.Token;
             var testDataGenerator = new TestDataGenerator();
             var listOfClients = testDataGenerator.GenerateListOfClients(10);
             var clientService = new ClientService(new ClientStorage(new BankSystemDbContext()));
             foreach (var client in listOfClients)
             {
-                await clientService.AddClientAsync(client);
+                await clientService.AddClientAsync(client, token);
             }
             
             var newClient = new Client
@@ -75,18 +81,19 @@ namespace BankSystem.App.Services.Tests
                 };
             
             //Act 
-            await clientService.AddClientAsync(newClient);
-            await clientService.AddNewAccountToClientAsync(newClient.Id, new Account {Amount = 123, CurrencyName = "EUR"});
+            await clientService.AddClientAsync(newClient, CancellationToken.None);
+            await clientService.AddNewAccountToClientAsync(newClient.Id, new Account {Amount = 123, CurrencyName = "EUR"}, CancellationToken.None);
             await clientService.UpdateAddedAccountOfClientAsync(newClient.Id,new Account {Amount = 123, CurrencyName = "EUR"}, 
-                new Account {Amount = 444, CurrencyName = "RUP" });
+                new Account {Amount = 444, CurrencyName = "RUP" }, token);
             var clientsWithSameName  = await clientService.GetByFilterAsync(cl =>
                 cl.FirstName == clientToSearch.FirstName && cl.LastName == clientToSearch.LastName,
-                cl => cl.OrderBy(c => c.Id), 1, 1);
+                cl => cl.OrderBy(c => c.Id), 1, 1, token);
             var clientWithSamePhoneNumber = await clientService.GetByFilterAsync(cl =>
                 cl.PhoneNumber == clientToSearch.PhoneNumber, c => 
-                c.OrderBy(cl => cl.PhoneNumber), 1, 1);
+                c.OrderBy(cl => cl.PhoneNumber), 1, 1, token);
             var clientWithSamePassportNumber = await clientService.GetByFilterAsync(cl =>
-                cl.Passport == clientToSearch.Passport, c => c.OrderBy(cl => cl.PhoneNumber), 1, 1);
+                cl.Passport == clientToSearch.Passport, c => c.OrderBy(cl => cl.PhoneNumber), 1, 1,
+                token);
 
             //Assert
             Assert.Single(clientsWithSameName);
@@ -120,7 +127,7 @@ namespace BankSystem.App.Services.Tests
         }
 
         [Fact]
-        public void AddEmployee_WithInvalidPasport_ThrowsException()
+        public async void AddEmployee_WithInvalidPasport_ThrowsException()
         {
             //Arrange
             var testDataGenerator = new TestDataGenerator();
@@ -128,7 +135,7 @@ namespace BankSystem.App.Services.Tests
             var employeeService = new EmployeeService(new EmployeeStorage(new BankSystemDbContext()));
             foreach (var employee in listOfEmployees)
             {
-                employeeService.AddEmployeeAsync(employee);
+                await employeeService.AddEmployeeAsync(employee);
             }
             
             
