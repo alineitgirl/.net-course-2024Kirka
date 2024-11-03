@@ -7,38 +7,44 @@ using System.Threading.Tasks;
 using BankSystem.App.Exceptions;
 using BankSystem.App.Interfaces;
 using BankSystem.Domain.Models;
+using AutoMapper;
+using BankSystem.App.Dto;
 
 namespace BankSystem.App.Services
 {
     public class EmployeeService
     {
         private IEmployeeStorage _employeeStorage;
+        private readonly IMapper _mapper;
 
-        public EmployeeService(IEmployeeStorage employeeStorage)
+        public EmployeeService(IEmployeeStorage employeeStorage, IMapper mapper)
         {
             _employeeStorage = employeeStorage;
+            _mapper = mapper;
         }
         
-        public async Task AddEmployeeAsync(Employee newEmployee, CancellationToken cancellationToken = default)
+        public async Task AddEmployeeAsync(EmployeeDto employeeDto, CancellationToken cancellationToken = default)
         {
+            var employee = _mapper.Map<Employee>(employeeDto);
             if (cancellationToken.IsCancellationRequested)
             {
                 return;
             }
-            if (newEmployee.Age < 18)
+            if (employee.Age < 18)
             {
                 throw new AgeOutOfRangeException("Сотрудник не может быть моложе 18 лет!");
             }
 
-            if (string.IsNullOrEmpty(newEmployee.Passport))
+            if (string.IsNullOrEmpty(employee.Passport))
             {
                 throw new NoInfoAboutPassportNumberException("Не указаны паспортные данные у сотрудника!");
             } 
-            await _employeeStorage.AddAsync(newEmployee, cancellationToken);
+            await _employeeStorage.AddAsync(employee, cancellationToken);
         }
 
-        public async Task UpdateEmployeeAsync(Guid id, Employee employee, CancellationToken cancellationToken = default)
+        public async Task UpdateEmployeeAsync(Guid id, EmployeeDto employeeDto, CancellationToken cancellationToken = default)
         {
+            var employee = _mapper.Map<Employee>(employeeDto);
             if (cancellationToken.IsCancellationRequested)
             {
                 return;
@@ -68,7 +74,7 @@ namespace BankSystem.App.Services
             return await _employeeStorage.GetByIdAsync(id, cancellationToken);
         }
 
-        public async Task DeleteEmployee(Guid id, CancellationToken cancellationToken = default)
+        public async Task DeleteEmployeeAsync(Guid id, CancellationToken cancellationToken = default)
         {
             if (cancellationToken.IsCancellationRequested)
             {

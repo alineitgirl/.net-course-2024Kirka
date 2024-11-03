@@ -9,6 +9,7 @@
     <ItemGroup>
       <PackageReference Include="CsvHelper" Version="33.0.1" />
       <PackageReference Include="CsvHelper.Excel.EPPlus" Version="30.1.1-ci0006" />
+      <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     </ItemGroup>
 

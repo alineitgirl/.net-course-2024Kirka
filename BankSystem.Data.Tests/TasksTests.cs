@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
+using BankSystem.App.Dto;
 using BankSystem.App.Services;
 using BankSystem.Data.DbContext;
 using BankSystem.Data.Storages;
@@ -77,7 +79,9 @@ public class TasksTests
         consumerTasks = new List<Task>();
         int consumerCount = 3;
         countdownEvent = new CountdownEvent(consumerCount);
-        var clientService = new ClientService(new ClientStorage(new BankSystemDbContext()));
+
+        var mapper = new Mapper(new MapperConfiguration(cfg => cfg.CreateMap<EmployeeDto, Employee>()));
+        var clientService = new ClientService(new ClientStorage(new BankSystemDbContext()), mapper);
         var cancellationTokenSource = new CancellationTokenSource();
         var token = cancellationTokenSource.Token;
        

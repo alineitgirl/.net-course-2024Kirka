@@ -1,3 +1,5 @@
+using AutoMapper;
+using BankSystem.App.Dto;
 using BankSystem.App.Services;
 using BankSystem.Data.DbContext;
 using BankSystem.Data.EntityConfigurations;
@@ -24,7 +26,8 @@ public class ExportTest
     {
         //Arrange
         var clientStorage = new ClientStorage(new BankSystemDbContext()); 
-        var clientService = new ClientService(clientStorage);
+        var mapper = new Mapper(new MapperConfiguration( cfg => cfg.CreateMap<ClientDto, Client>() ));
+        var clientService = new ClientService(clientStorage, mapper);
         var cancellationToken = new CancellationTokenSource();
         var token = cancellationToken.Token;
         
