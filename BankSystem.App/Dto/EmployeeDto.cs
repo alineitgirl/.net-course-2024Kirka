@@ -10,5 +10,6 @@ namespace BankSystem.App.Dto
         public string? Adress { get; set; }
         public string? Position { get; set; }
         public string? Department { get; set; }
+        public string Passport { get; set; }
     }
 }

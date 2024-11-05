@@ -1,4 +1,5 @@
-﻿using System.Net.NetworkInformation;
+﻿using System.Linq;
+using System.Net.NetworkInformation;
 using AutoMapper;
 using BankSystem.App.Dto;
 using BankSystem.Domain.Models;
@@ -22,8 +23,16 @@ namespace BankSystem.App.Validators
                 .ForMember(dest => dest.FullName,
                     opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
                 .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth.ToString("yyyy-MM-dd")));
-            
-            CreateMap<ClientDto, Client>().ReverseMap();
+            CreateMap<ClientDto, Client>()
+                .ForMember(dest => dest.FirstName,
+                    opt => opt.MapFrom(src => src.FullName.Split().FirstOrDefault()))
+                .ForMember(dest => dest.LastName,
+                    opt => opt.MapFrom(src => src.FullName.Split().LastOrDefault()));
+            CreateMap<EmployeeDto, Employee>()
+                .ForMember(dest => dest.FirstName,
+                    opt => opt.MapFrom(src => src.FullName.Split().FirstOrDefault()))
+                .ForMember(dest => dest.LastName,
+                    opt => opt.MapFrom(src => src.FullName.Split().LastOrDefault()));
         }
     }
 }

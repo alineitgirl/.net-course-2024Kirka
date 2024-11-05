@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using BankSystem.App.Dto;
-using BankSystem.App.Exceptions;
 using BankSystem.App.Interfaces;
 using BankSystem.Domain.Models;
 using AutoMapper;
@@ -31,16 +30,6 @@ namespace BankSystem.App.Services
             {
                 return;
             }
-            if (client.Age < 18)
-            {   
-                throw new AgeOutOfRangeException("Клиент не может быть моложе 18 лет!");
-            }
-
-            //if (string.IsNullOrEmpty(client.Passport))
-            //{
-                //throw new NoInfoAboutPassportNumberException("Не указаны паспортные данные у клиента!");
-            //}
-
             if (_clientStorage.GetByIdAsync(client.Id, cancellationToken) != null) return;
             await  _clientStorage.AddAsync(client, cancellationToken);
         }
@@ -64,16 +53,17 @@ namespace BankSystem.App.Services
             await _clientStorage.DeleteAsync(id, cancellationToken);
         }
 
-        public async Task<Client> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+        public async Task<ClientDto> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested)
             {
                 return null;
             }
-            return await _clientStorage.GetByIdAsync(id, cancellationToken);
+            var client = await _clientStorage.GetByIdAsync(id, cancellationToken);
+            return _mapper.Map<ClientDto>(client);
         }
 
-        public async Task<List<Client>> GetByFilterAsync(
+        public async Task<List<ClientDto>> GetByFilterAsync(
             Expression<Func<Client, bool>> filter, Func<IQueryable<Client>, IOrderedQueryable<Client>> orderBy, 
             int pageNumber, int pageSize, CancellationToken cancellationToken)
         {
@@ -82,7 +72,7 @@ namespace BankSystem.App.Services
                 return null;
             }
             var clients = await _clientStorage.GetByFilterAsync(filter, orderBy, pageNumber, pageSize, cancellationToken);
-            return clients;
+            return _mapper.Map<List<ClientDto>>(clients);
         }
 
 

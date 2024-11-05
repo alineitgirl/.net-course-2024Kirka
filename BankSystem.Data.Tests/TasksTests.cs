@@ -94,9 +94,10 @@ public class TasksTests
             c => c.Id), 1, 10, token);
         foreach (var client in clients)
         {
-            var clWithAccounts = await clientService.GetClientWithAccountAsync(client.Id, token);
-            var accounts = clWithAccounts.Accounts.FirstOrDefault(a => a.Id == client.Id);
-            collectionOfRequests.Add((client.Id, accounts, 100, token));
+            var cl = mapper.Map<Client>(client);
+            var clWithAccounts = await clientService.GetClientWithAccountAsync(cl.Id, token);
+            var accounts = clWithAccounts.Accounts.FirstOrDefault(a => a.Id == cl.Id);
+            collectionOfRequests.Add((cl.Id, accounts, 100, token));
         }
 
         collectionOfRequests.CompleteAdding();
@@ -108,7 +109,8 @@ public class TasksTests
         
         foreach (var client in clients)
         {
-            var clientWithAccount = await clientService.GetClientWithAccountAsync(client.Id, token);
+            var cl = mapper.Map<Client>(client);
+            var clientWithAccount = await clientService.GetClientWithAccountAsync(cl.Id, token);
             var accounts = clientWithAccount.Accounts.FirstOrDefault(a => a.CurrencyName == "USD");
             Assert.Equal(900, accounts.Amount); 
         }

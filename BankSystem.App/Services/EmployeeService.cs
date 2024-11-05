@@ -30,15 +30,6 @@ namespace BankSystem.App.Services
             {
                 return;
             }
-            if (employee.Age < 18)
-            {
-                throw new AgeOutOfRangeException("Сотрудник не может быть моложе 18 лет!");
-            }
-
-            if (string.IsNullOrEmpty(employee.Passport))
-            {
-                throw new NoInfoAboutPassportNumberException("Не указаны паспортные данные у сотрудника!");
-            } 
             await _employeeStorage.AddAsync(employee, cancellationToken);
         }
 
@@ -52,7 +43,7 @@ namespace BankSystem.App.Services
             await _employeeStorage.UpdateAsync(id, employee, cancellationToken);
         }
         
-        public async Task<List<Employee>> GetByFilterAsync(
+        public async Task<List<EmployeeDto>> GetByFilterAsync(
             Expression<Func<Employee, bool>> filter = null, Func<IQueryable<Employee>, IOrderedQueryable<Employee>> orderBy = null, 
             int pageNumber = 1, int pageSize = 1, CancellationToken cancellationToken = default)
         {
@@ -62,16 +53,17 @@ namespace BankSystem.App.Services
             }
             var employees = await _employeeStorage.GetByFilterAsync(filter, orderBy, pageNumber, pageSize,
                 cancellationToken);
-            return employees.ToList();
+            return _mapper.Map<List<EmployeeDto>>(employees);
         }
 
-        public async Task<Employee?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<EmployeeDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             if (cancellationToken.IsCancellationRequested)
             {
                 return null;
             }
-            return await _employeeStorage.GetByIdAsync(id, cancellationToken);
+            var employee = await _employeeStorage.GetByIdAsync(id, cancellationToken);
+            return _mapper.Map<EmployeeDto>(employee);
         }
 
         public async Task DeleteEmployeeAsync(Guid id, CancellationToken cancellationToken = default)

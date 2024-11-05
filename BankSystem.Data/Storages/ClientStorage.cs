@@ -77,8 +77,7 @@ namespace BankSystem.Data.Storages
                         .SetProperty(s => s.PhoneNumber, client.PhoneNumber)
                         .SetProperty(s => s.Passport, client.Passport)
                         .SetProperty(s => s.Adress, client.Adress)
-                        .SetProperty(s => s.Age, client.Age)
-                        .SetProperty(s => s.Accounts, client.Accounts), cancellationToken);
+                        .SetProperty(s => s.Age, client.Age), cancellationToken);
             }
                 
         }

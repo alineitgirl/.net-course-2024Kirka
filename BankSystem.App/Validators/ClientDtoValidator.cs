@@ -20,7 +20,6 @@ namespace BankSystem.App.Validators
                 .MaximumLength(20)
                 .NotEmpty()
                 .NotNull()
-                .Matches(@"^0-\d{3}-\d{3}-\d{2}$")
                 .WithMessage("Номер телефона для клиента обязателен.");
             
             RuleFor(o => o.DateOfBirth)
@@ -33,6 +32,12 @@ namespace BankSystem.App.Validators
                 .WithMessage("Не указан адрес клиента");
 
             RuleFor(o => o.Age).GreaterThan(18);
+
+            RuleFor(p => p.Passport)
+                .NotEmpty()
+                .NotNull()
+                .WithMessage("Паспортный номер обязателен.")
+                .Length(1, 20);
         }
     }
 }

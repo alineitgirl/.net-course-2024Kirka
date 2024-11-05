@@ -39,6 +39,12 @@ namespace BankSystem.App.Validators
                 .Length(1, 100)
                 .NotNull()
                 .WithMessage("Отдел сотрудника обязателен.");
+            
+            RuleFor(p => p.Passport)
+                .NotEmpty()
+                .NotNull()
+                .WithMessage("Паспортный номер обязателен.")
+                .Length(1, 20);
         }
     }
 }

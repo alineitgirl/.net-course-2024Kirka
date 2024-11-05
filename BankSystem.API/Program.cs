@@ -15,17 +15,22 @@ builder.Services.AddControllers()
     .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<ClientDtoValidator>())
     .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<EmployeeDtoValidator>());
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddScoped<ClientService>();
 builder.Services.AddScoped<EmployeeService>();
 builder.Services.AddScoped<IClientStorage, ClientStorage>();
 builder.Services.AddScoped<IEmployeeStorage, EmployeeStorage>();
 builder.Services.AddSingleton<BankSystemDbContext>();
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 builder.Services.AddFluentValidation(
     options => options.RegisterValidatorsFromAssemblyContaining<Program>()
     );
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+});
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -45,5 +50,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+app.UseCors("AllowSpecificOrigin");
 
 app.Run();
