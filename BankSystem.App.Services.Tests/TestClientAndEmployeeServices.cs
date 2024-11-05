@@ -1,4 +1,6 @@
 
+using AutoMapper;
+using BankSystem.App.Dto;
 using BankSystem.App.Exceptions;
 using BankSystem.App.Interfaces;
 using BankSystem.Data.DbContext;
@@ -16,19 +18,20 @@ namespace BankSystem.App.Services.Tests
             //Arrange
             var testDataGenerator = new TestDataGenerator();
             var listOfClients = testDataGenerator.GenerateListOfClients(10);
-            var clientService = new ClientService(new ClientStorage(new BankSystemDbContext()));
+            var mapper = new Mapper(new MapperConfiguration( cfg => cfg.CreateMap<Client, ClientDto>()));
+            var clientService = new ClientService(new ClientStorage(new BankSystemDbContext()), mapper);
             var cancellationToken = new CancellationTokenSource();
             var token = cancellationToken.Token;
             foreach (var client in listOfClients)
             {
-                clientService.AddClientAsync(client, token);
+                clientService.AddClientAsync(mapper.Map<Client, ClientDto>(client), token);
             }
             
             //Act    
             var newClient = new Client {FirstName = "Олег", LastName = "Скворцов", Age = 16};
 
             //Assert
-            Assert.ThrowsAsync<AgeOutOfRangeException>(() => clientService.AddClientAsync(newClient, token));
+            Assert.ThrowsAsync<AgeOutOfRangeException>(() => clientService.AddClientAsync(mapper.Map<Client, ClientDto>(newClient), token));
         }
 
         [Fact]
@@ -37,19 +40,20 @@ namespace BankSystem.App.Services.Tests
             //Arrange
             var testDataGenerator = new TestDataGenerator();
             var listOfClients = testDataGenerator.GenerateListOfClients(10);
-            var clientService = new ClientService(new ClientStorage(new BankSystemDbContext()));
+            var mapper = new Mapper(new MapperConfiguration(cfg => cfg.CreateMap<Client, ClientDto>()));
+            var clientService = new ClientService(new ClientStorage(new BankSystemDbContext()), mapper);
             var cancellationToken = new CancellationTokenSource();
             var token = cancellationToken.Token;
             foreach (var client in listOfClients)
             {
-                await clientService.AddClientAsync(client, token);
+                await clientService.AddClientAsync(mapper.Map<Client, ClientDto>(client), token);
             }
             
             //Act
             var newClient = new Client {FirstName = "Олег", LastName = "Скворцов", Age = 20};
 
             //Assert
-            Assert.ThrowsAsync<NoInfoAboutPassportNumberException>(() => clientService.AddClientAsync(newClient, token));
+            Assert.ThrowsAsync<NoInfoAboutPassportNumberException>(() => clientService.AddClientAsync(mapper.Map<Client, ClientDto>(newClient), token));
         }
 
         [Fact]
@@ -59,11 +63,12 @@ namespace BankSystem.App.Services.Tests
             var cancellationTokenSource = new CancellationTokenSource();
             var token = cancellationTokenSource.Token;
             var testDataGenerator = new TestDataGenerator();
+            var mapper = new Mapper(new MapperConfiguration(cfg => cfg.CreateMap<Client, ClientDto>()));
             var listOfClients = testDataGenerator.GenerateListOfClients(10);
-            var clientService = new ClientService(new ClientStorage(new BankSystemDbContext()));
+            var clientService = new ClientService(new ClientStorage(new BankSystemDbContext()), mapper);
             foreach (var client in listOfClients)
             {
-                await clientService.AddClientAsync(client, token);
+                await clientService.AddClientAsync(mapper.Map<Client, ClientDto>(client), token);
             }
             
             var newClient = new Client
@@ -81,7 +86,7 @@ namespace BankSystem.App.Services.Tests
                 };
             
             //Act 
-            await clientService.AddClientAsync(newClient, CancellationToken.None);
+            await clientService.AddClientAsync(mapper.Map<Client, ClientDto>(newClient), token);
             await clientService.AddNewAccountToClientAsync(newClient.Id, new Account {Amount = 123, CurrencyName = "EUR"}, CancellationToken.None);
             await clientService.UpdateAddedAccountOfClientAsync(newClient.Id,new Account {Amount = 123, CurrencyName = "EUR"}, 
                 new Account {Amount = 444, CurrencyName = "RUP" }, token);
@@ -107,10 +112,12 @@ namespace BankSystem.App.Services.Tests
             //Arrange
             var testDataGenerator = new TestDataGenerator();
             var listOfEmployees = testDataGenerator.GenerateListOfEmployees(10);
-            var employeeService = new EmployeeService(new EmployeeStorage(new BankSystemDbContext()));
+            var mapper = new Mapper(new MapperConfiguration(cfg => cfg.CreateMap<Employee, EmployeeDto>()));
+            var cancellationToken = new CancellationTokenSource();
+            var employeeService = new EmployeeService(new EmployeeStorage(new BankSystemDbContext()), mapper);
             foreach (var employee in listOfEmployees)
             {
-                 await employeeService.AddEmployeeAsync(employee);
+                 await employeeService.AddEmployeeAsync(mapper.Map<Employee, EmployeeDto>(employee), cancellationToken.Token);
             }
 
             
@@ -123,7 +130,7 @@ namespace BankSystem.App.Services.Tests
             };
 
             //Assert
-            await Assert.ThrowsAsync<AgeOutOfRangeException>(() => employeeService.AddEmployeeAsync(newEmployee));
+            await Assert.ThrowsAsync<AgeOutOfRangeException>(() => employeeService.AddEmployeeAsync(mapper.Map<Employee, EmployeeDto>(newEmployee), cancellationToken.Token));
         }
 
         [Fact]
@@ -132,10 +139,12 @@ namespace BankSystem.App.Services.Tests
             //Arrange
             var testDataGenerator = new TestDataGenerator();
             var listOfEmployees = testDataGenerator.GenerateListOfEmployees(10);
-            var employeeService = new EmployeeService(new EmployeeStorage(new BankSystemDbContext()));
+            var mapper = new Mapper(new MapperConfiguration(cfg => cfg.CreateMap<Employee, EmployeeDto>()));
+            var cancellationToken = new CancellationTokenSource();
+            var employeeService = new EmployeeService(new EmployeeStorage(new BankSystemDbContext()), mapper);
             foreach (var employee in listOfEmployees)
             {
-                await employeeService.AddEmployeeAsync(employee);
+                await employeeService.AddEmployeeAsync(mapper.Map<Employee, EmployeeDto>(employee), cancellationToken.Token);
             }
             
             
@@ -148,19 +157,23 @@ namespace BankSystem.App.Services.Tests
             };
 
             //Assert
-            Assert.ThrowsAsync<NoInfoAboutPassportNumberException>(() => employeeService.AddEmployeeAsync(newEmployee));
+            Assert.ThrowsAsync<NoInfoAboutPassportNumberException>(() => employeeService.AddEmployeeAsync(mapper.Map<Employee, EmployeeDto>(newEmployee), cancellationToken.Token));
         }
 
         [Fact]
-        public async Task AddUpdateAndGetEmployeesByFilter_PositivTest()
+        public async Task AddUpdateAndGetEmployeesByFilter_PositivTestcg()
         {
             //Arrange
+            var mapper = new Mapper(new MapperConfiguration(cfg => cfg.CreateMap<Employee, EmployeeDto>())); 
+            var cancellationToken = new CancellationTokenSource();
+            var token = cancellationToken.Token;
             var testDataGenerator = new TestDataGenerator();
             var listOfEmployees = testDataGenerator.GenerateListOfEmployees(10);
-            var employeeService = new EmployeeService(new EmployeeStorage(new BankSystemDbContext()));
+            var employeeService = new EmployeeService(new EmployeeStorage(new BankSystemDbContext()), mapper);
             foreach (var employee in listOfEmployees)
             {
-                await employeeService.AddEmployeeAsync(employee);
+                var employeeDto = mapper.Map<Employee, EmployeeDto>(employee);
+                await employeeService.AddEmployeeAsync(employeeDto);
             }
             
             Employee newEmployee = new Employee
@@ -184,7 +197,8 @@ namespace BankSystem.App.Services.Tests
 
 
             //Act
-            await employeeService.AddEmployeeAsync(newEmployee);
+            
+            await employeeService.AddEmployeeAsync(mapper.Map<Employee, EmployeeDto>(newEmployee));
             var employeeToUpdate = new Employee
             {
                 FirstName = "",
@@ -199,7 +213,7 @@ namespace BankSystem.App.Services.Tests
             var employeeByName = await employeeService.GetByFilterAsync(empl =>
                 empl.FirstName == employeeToSearch.FirstName && empl.LastName == employeeToSearch.LastName,
                 c => c.OrderBy(cl => cl.Age),  1, 1);
-            await employeeService.UpdateEmployeeAsync(newEmployee.Id, employeeToUpdate);
+            await employeeService.UpdateEmployeeAsync(newEmployee.Id, mapper.Map<Employee, EmployeeDto>(employeeToUpdate), token);
             var result = await employeeService.GetByFilterAsync(empl => empl.FirstName == "Александр",
                 c => c.OrderBy(cl => cl.Age), 1, 1);
 
