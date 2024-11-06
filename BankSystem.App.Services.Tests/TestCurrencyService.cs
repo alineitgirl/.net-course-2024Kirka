@@ -15,12 +15,13 @@ public class TestCurrencyService
     {
         //Arrange
         var currencyService = new CurrencyService();
-        var baseCurrency = "USD";
-        var targetCurrency = "EUR";
+        var baseCurrency = "MDL";
+        var targetCurrency = "UAH";
         var amount = 20000;
+        var cancellationToken = new CancellationTokenSource();
         
         //Act
-         var response = await currencyService.Exchange(baseCurrency, targetCurrency, amount);
+         var response = await currencyService.Exchange(baseCurrency, targetCurrency, amount, cancellationToken.Token);
          
         //Assert
         _testOutputHelper.WriteLine(response.ErrorCode > 0
